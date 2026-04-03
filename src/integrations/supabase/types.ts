@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_comms: {
+        Row: {
+          from_agent: string
+          id: string
+          message: string
+          timestamp: string | null
+          to_agent: string
+        }
+        Insert: {
+          from_agent: string
+          id?: string
+          message: string
+          timestamp?: string | null
+          to_agent: string
+        }
+        Update: {
+          from_agent?: string
+          id?: string
+          message?: string
+          timestamp?: string | null
+          to_agent?: string
+        }
+        Relationships: []
+      }
+      agents: {
+        Row: {
+          agent_id: string
+          created_at: string | null
+          current_activity: string | null
+          emoji: string
+          last_seen: string | null
+          name: string
+          ring_color: string | null
+          skills: string[] | null
+          status: string | null
+          type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          agent_id?: string
+          created_at?: string | null
+          current_activity?: string | null
+          emoji: string
+          last_seen?: string | null
+          name: string
+          ring_color?: string | null
+          skills?: string[] | null
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string | null
+          current_activity?: string | null
+          emoji?: string
+          last_seen?: string | null
+          name?: string
+          ring_color?: string | null
+          skills?: string[] | null
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       board_columns: {
         Row: {
           color: string
@@ -35,6 +101,180 @@ export type Database = {
           id?: string
           name?: string
           position?: number
+        }
+        Relationships: []
+      }
+      council_sessions: {
+        Row: {
+          created_at: string | null
+          id: string
+          messages: Json | null
+          participants: Json | null
+          question: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          messages?: Json | null
+          participants?: Json | null
+          question: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          messages?: Json | null
+          participants?: Json | null
+          question?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      logs: {
+        Row: {
+          agent_emoji: string | null
+          agent_name: string
+          category: string | null
+          created_at: string | null
+          data: Json | null
+          id: string
+          message: string
+          timestamp: string | null
+        }
+        Insert: {
+          agent_emoji?: string | null
+          agent_name: string
+          category?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          message: string
+          timestamp?: string | null
+        }
+        Update: {
+          agent_emoji?: string | null
+          agent_name?: string
+          category?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          message?: string
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
+      meetings: {
+        Row: {
+          action_items: Json | null
+          ai_insights: string | null
+          attendees: string[] | null
+          created_at: string | null
+          date: string | null
+          duration_minutes: number | null
+          external_domains: string[] | null
+          has_external: boolean | null
+          id: string
+          sentiment: string | null
+          summary: string | null
+          title: string
+          type: string | null
+        }
+        Insert: {
+          action_items?: Json | null
+          ai_insights?: string | null
+          attendees?: string[] | null
+          created_at?: string | null
+          date?: string | null
+          duration_minutes?: number | null
+          external_domains?: string[] | null
+          has_external?: boolean | null
+          id?: string
+          sentiment?: string | null
+          summary?: string | null
+          title: string
+          type?: string | null
+        }
+        Update: {
+          action_items?: Json | null
+          ai_insights?: string | null
+          attendees?: string[] | null
+          created_at?: string | null
+          date?: string | null
+          duration_minutes?: number | null
+          external_domains?: string[] | null
+          has_external?: boolean | null
+          id?: string
+          sentiment?: string | null
+          summary?: string | null
+          title?: string
+          type?: string | null
+        }
+        Relationships: []
+      }
+      memory: {
+        Row: {
+          agent_name: string
+          approved: boolean | null
+          category: string | null
+          content: string
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          agent_name: string
+          approved?: boolean | null
+          category?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+        }
+        Update: {
+          agent_name?: string
+          approved?: boolean | null
+          category?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      queue: {
+        Row: {
+          action_name: string | null
+          claimed_by: string | null
+          created_at: string | null
+          id: string
+          payload: Json | null
+          priority: string | null
+          status: string | null
+          task_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          action_name?: string | null
+          claimed_by?: string | null
+          created_at?: string | null
+          id?: string
+          payload?: Json | null
+          priority?: string | null
+          status?: string | null
+          task_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          action_name?: string | null
+          claimed_by?: string | null
+          created_at?: string | null
+          id?: string
+          payload?: Json | null
+          priority?: string | null
+          status?: string | null
+          task_type?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
