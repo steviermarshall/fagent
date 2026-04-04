@@ -54,6 +54,7 @@ const statusColors: Record<string, string> = {
 const CommandDeck = () => {
   const { agents, loading: agentsLoading } = useAgents();
   const { logs, loading: logsLoading } = useLogs();
+  const { queue, loading: queueLoading } = useQueue();
 
   const activeCount = agents.filter((a) => a.status === "active").length;
 
