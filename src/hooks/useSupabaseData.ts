@@ -81,3 +81,22 @@ export function useCouncilSessions() {
 
   return { sessions, loading };
 }
+
+export function useQueue(pollInterval = 30000) {
+  const [queue, setQueue] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetch = useCallback(async () => {
+    const { data } = await supabase.from("queue").select("*").order("created_at", { ascending: false });
+    if (data) setQueue(data);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetch();
+    const interval = setInterval(fetch, pollInterval);
+    return () => clearInterval(interval);
+  }, [fetch, pollInterval]);
+
+  return { queue, loading };
+}
