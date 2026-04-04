@@ -147,6 +147,60 @@ const CommandDeck = () => {
           )}
         </motion.div>
       </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.4 }}
+        className="glass-card p-5"
+      >
+        <h3 className="text-sm font-semibold text-foreground mb-4">Queue</h3>
+        {queueLoading ? (
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        ) : queue.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No items in queue.</p>
+        ) : (
+          <ScrollArea className="h-[300px]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Action</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Claimed By</TableHead>
+                  <TableHead>Created</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {queue.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-medium text-foreground">{item.action_name || "—"}</TableCell>
+                    <TableCell>
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full ${
+                        item.status === "pending" ? "bg-warning/20 text-warning" :
+                        item.status === "claimed" ? "bg-blue-500/20 text-blue-400" :
+                        item.status === "completed" ? "bg-primary/20 text-primary" :
+                        "bg-muted text-muted-foreground"
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${
+                          item.status === "pending" ? "bg-warning" :
+                          item.status === "claimed" ? "bg-blue-400" :
+                          item.status === "completed" ? "bg-primary" :
+                          "bg-muted-foreground"
+                        }`} />
+                        {item.status || "unknown"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{item.claimed_by || "—"}</TableCell>
+                    <TableCell className="text-muted-foreground text-xs">
+                      {item.created_at ? formatDistanceToNow(new Date(item.created_at), { addSuffix: true }) : "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+        )}
+      </motion.div>
     </div>
   );
 };
