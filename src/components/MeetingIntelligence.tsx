@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Calendar, TrendingUp, CheckSquare, Clock, Search, Globe, Sparkles, ExternalLink, Share2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -9,17 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { format, parseISO, isAfter, subDays } from "date-fns";
 import DOMPurify from "dompurify";
-import { meetings } from "@/data/mockData";
+import { useMeetings } from "@/hooks/useSupabaseData";
 
 const meetingTypeColors: Record<string, string> = {
-  "1-on-1": "#60a5fa",
-  external: "#a78bfa",
-  sales: "#34d399",
-  team: "#fb923c",
-  standup: "#818cf8",
-  planning: "#2dd4bf",
-  interview: "#f472b6",
-  "all-hands": "#facc15",
+  "1-on-1": "#60a5fa", external: "#a78bfa", sales: "#34d399", team: "#fb923c",
+  standup: "#818cf8", planning: "#2dd4bf", interview: "#f472b6", "all-hands": "#facc15",
 };
 
 const meetingTypeBadgeClasses: Record<string, string> = {
@@ -32,19 +26,18 @@ const meetingTypeBadgeClasses: Record<string, string> = {
   team: "bg-orange-400/15 text-orange-400 border-orange-400/30",
 };
 
-const KPICard = ({ icon: Icon, label, value, delay }: { icon: any; label: string; value: string; delay: number }) => {
-  return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.4 }} className="glass-card-hover p-5">
-      <div className="p-2 rounded-lg bg-primary/10 glow-emerald w-fit mb-3">
-        <Icon className="w-5 h-5 text-primary" />
-      </div>
-      <p className="text-3xl font-bold font-heading text-foreground">{value}</p>
-      <p className="text-sm text-muted-foreground mt-1">{label}</p>
-    </motion.div>
-  );
-};
+const KPICard = ({ icon: Icon, label, value, delay }: { icon: any; label: string; value: string; delay: number }) => (
+  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.4 }} className="glass-card-hover p-5">
+    <div className="p-2 rounded-lg bg-primary/10 glow-emerald w-fit mb-3">
+      <Icon className="w-5 h-5 text-primary" />
+    </div>
+    <p className="text-3xl font-bold font-heading text-foreground">{value}</p>
+    <p className="text-sm text-muted-foreground mt-1">{label}</p>
+  </motion.div>
+);
 
 const MeetingIntelligence = () => {
+  const { meetings, loading } = useMeetings();
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
@@ -52,42 +45,48 @@ const MeetingIntelligence = () => {
   const [externalOnly, setExternalOnly] = useState(false);
   const [expandedMeeting, setExpandedMeeting] = useState<string | null>(null);
 
+  const actionItems = (m: any) => (Array.isArray(m.action_items) ? m.action_items : []) as { task: string; assignee: string; done: boolean }[];
+
   const totalMeetings = meetings.length;
-  const thisWeek = meetings.filter((m) => isAfter(parseISO(m.date), subDays(new Date(), 7))).length;
-  const openActions = meetings.reduce((sum, m) => sum + m.action_items.filter((a) => !a.done).length, 0);
-  const avgDuration = Math.round(meetings.reduce((sum, m) => sum + m.duration_minutes, 0) / meetings.length);
+  const thisWeek = meetings.filter((m) => m.date && isAfter(parseISO(m.date), subDays(new Date(), 7))).length;
+  const openActions = meetings.reduce((sum, m) => sum + actionItems(m).filter((a) => !a.done).length, 0);
+  const avgDuration = meetings.length ? Math.round(meetings.reduce((sum, m) => sum + (m.duration_minutes || 0), 0) / meetings.length) : 0;
 
   const typeData = useMemo(() => {
     const counts: Record<string, number> = {};
-    meetings.forEach((m) => { counts[m.meeting_type] = (counts[m.meeting_type] || 0) + 1; });
+    meetings.forEach((m) => { const t = m.type || "other"; counts[t] = (counts[t] || 0) + 1; });
     return Object.entries(counts).map(([name, value]) => ({ name, value }));
-  }, []);
+  }, [meetings]);
 
   const monthData = useMemo(() => {
     const counts: Record<string, number> = {};
     meetings.forEach((m) => {
+      if (!m.date) return;
       const month = format(parseISO(m.date), "MMM");
       counts[month] = (counts[month] || 0) + 1;
     });
     return Object.entries(counts).map(([month, count]) => ({ month, count }));
-  }, []);
+  }, [meetings]);
 
   const filtered = useMemo(() => {
     let result = [...meetings];
     if (searchQuery) result = result.filter((m) => m.title.toLowerCase().includes(searchQuery.toLowerCase()));
     if (dateRange !== "all") {
       const days = parseInt(dateRange);
-      result = result.filter((m) => isAfter(parseISO(m.date), subDays(new Date(), days)));
+      result = result.filter((m) => m.date && isAfter(parseISO(m.date), subDays(new Date(), days)));
     }
-    if (hasActionItems) result = result.filter((m) => m.action_items.some((a) => !a.done));
-    if (externalOnly) result = result.filter((m) => m.has_external_participants);
+    if (hasActionItems) result = result.filter((m) => actionItems(m).some((a) => !a.done));
+    if (externalOnly) result = result.filter((m) => m.has_external);
     result.sort((a, b) => {
-      if (sortBy === "recent") return parseISO(b.date).getTime() - parseISO(a.date).getTime();
-      if (sortBy === "oldest") return parseISO(a.date).getTime() - parseISO(b.date).getTime();
-      return b.duration_minutes - a.duration_minutes;
+      if (sortBy === "recent") return new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime();
+      if (sortBy === "oldest") return new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime();
+      return (b.duration_minutes || 0) - (a.duration_minutes || 0);
     });
     return result;
-  }, [searchQuery, dateRange, sortBy, hasActionItems, externalOnly]);
+  }, [meetings, searchQuery, dateRange, sortBy, hasActionItems, externalOnly]);
+
+  if (loading) return <p className="text-sm text-muted-foreground">Loading meetings...</p>;
+  if (meetings.length === 0) return <p className="text-sm text-muted-foreground">No meetings found.</p>;
 
   return (
     <div className="space-y-6">
@@ -104,9 +103,7 @@ const MeetingIntelligence = () => {
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie data={typeData} cx="50%" cy="50%" innerRadius={50} outerRadius={85} dataKey="value" paddingAngle={4} strokeWidth={0}>
-                {typeData.map((entry) => (
-                  <Cell key={entry.name} fill={meetingTypeColors[entry.name] || "#6b7280"} />
-                ))}
+                {typeData.map((entry) => <Cell key={entry.name} fill={meetingTypeColors[entry.name] || "#6b7280"} />)}
               </Pie>
               <Tooltip contentStyle={{ background: "rgba(17,24,39,0.9)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#f9fafb" }} />
               <Legend formatter={(value) => <span className="text-xs text-muted-foreground capitalize">{value}</span>} />
@@ -131,12 +128,7 @@ const MeetingIntelligence = () => {
         <div className="flex flex-wrap gap-3 items-center">
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search meetings..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-secondary/50 border-border text-foreground"
-            />
+            <Input placeholder="Search meetings..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 bg-secondary/50 border-border text-foreground" />
           </div>
           <Select value={dateRange} onValueChange={setDateRange}>
             <SelectTrigger className="w-32 bg-secondary/50 border-border text-foreground"><SelectValue /></SelectTrigger>
@@ -155,20 +147,10 @@ const MeetingIntelligence = () => {
               <SelectItem value="longest">Longest Duration</SelectItem>
             </SelectContent>
           </Select>
-          <Button
-            variant={hasActionItems ? "default" : "outline"}
-            size="sm"
-            onClick={() => setHasActionItems(!hasActionItems)}
-            className={hasActionItems ? "bg-primary text-primary-foreground" : "border-border text-muted-foreground"}
-          >
-            Action Items
-          </Button>
-          <Button
-            variant={externalOnly ? "default" : "outline"}
-            size="sm"
-            onClick={() => setExternalOnly(!externalOnly)}
-            className={externalOnly ? "bg-primary text-primary-foreground" : "border-border text-muted-foreground"}
-          >
+          <Button variant={hasActionItems ? "default" : "outline"} size="sm" onClick={() => setHasActionItems(!hasActionItems)}
+            className={hasActionItems ? "bg-primary text-primary-foreground" : "border-border text-muted-foreground"}>Action Items</Button>
+          <Button variant={externalOnly ? "default" : "outline"} size="sm" onClick={() => setExternalOnly(!externalOnly)}
+            className={externalOnly ? "bg-primary text-primary-foreground" : "border-border text-muted-foreground"}>
             <Globe className="w-3 h-3 mr-1" /> External
           </Button>
         </div>
@@ -176,104 +158,91 @@ const MeetingIntelligence = () => {
 
       <ScrollArea className="h-[600px]">
         <div className="space-y-3 pr-4">
-          {filtered.map((meeting, i) => (
-            <motion.div
-              key={meeting.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.03 }}
-              className="glass-card-hover overflow-hidden"
-            >
-              <button
-                onClick={() => setExpandedMeeting(expandedMeeting === meeting.id ? null : meeting.id)}
-                className="w-full p-4 flex items-center gap-4 text-left"
-              >
-                <Badge variant="outline" className={`text-xs border flex-shrink-0 ${meetingTypeBadgeClasses[meeting.meeting_type] || "border-border text-muted-foreground"}`}>
-                  {meeting.meeting_type}
-                </Badge>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{meeting.title}</p>
-                  <p className="text-xs text-muted-foreground">{format(parseISO(meeting.date), "MMM d, yyyy · h:mm a")}</p>
-                </div>
-                <span className="text-xs font-mono text-muted-foreground flex-shrink-0">{meeting.duration_display}</span>
-                <div className="flex -space-x-2 flex-shrink-0">
-                  {meeting.attendees.slice(0, 3).map((a) => (
-                    <div key={a} className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center border-2 border-background text-xs font-medium text-foreground">
-                      {a[0]}
-                    </div>
-                  ))}
-                  {meeting.attendees.length > 3 && (
-                    <div className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center border-2 border-background text-xs text-muted-foreground">
-                      +{meeting.attendees.length - 3}
+          {filtered.map((meeting, i) => {
+            const items = actionItems(meeting);
+            const durationDisplay = meeting.duration_minutes ? (meeting.duration_minutes >= 60 ? `${Math.floor(meeting.duration_minutes / 60)}h ${meeting.duration_minutes % 60}m` : `${meeting.duration_minutes}m`) : "";
+            return (
+              <motion.div key={meeting.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }} className="glass-card-hover overflow-hidden">
+                <button onClick={() => setExpandedMeeting(expandedMeeting === meeting.id ? null : meeting.id)} className="w-full p-4 flex items-center gap-4 text-left">
+                  <Badge variant="outline" className={`text-xs border flex-shrink-0 ${meetingTypeBadgeClasses[meeting.type] || "border-border text-muted-foreground"}`}>
+                    {meeting.type || "meeting"}
+                  </Badge>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{meeting.title}</p>
+                    <p className="text-xs text-muted-foreground">{meeting.date ? format(parseISO(meeting.date), "MMM d, yyyy · h:mm a") : ""}</p>
+                  </div>
+                  <span className="text-xs font-mono text-muted-foreground flex-shrink-0">{durationDisplay}</span>
+                  {meeting.attendees && (
+                    <div className="flex -space-x-2 flex-shrink-0">
+                      {meeting.attendees.slice(0, 3).map((a: string) => (
+                        <div key={a} className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center border-2 border-background text-xs font-medium text-foreground">{a[0]}</div>
+                      ))}
+                      {meeting.attendees.length > 3 && (
+                        <div className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center border-2 border-background text-xs text-muted-foreground">+{meeting.attendees.length - 3}</div>
+                      )}
                     </div>
                   )}
-                </div>
-                {meeting.action_items.filter((a) => !a.done).length > 0 && (
-                  <Badge className="bg-warning/15 text-warning border-warning/30 text-xs flex-shrink-0">
-                    {meeting.action_items.filter((a) => !a.done).length} action{meeting.action_items.filter((a) => !a.done).length > 1 ? "s" : ""}
-                  </Badge>
-                )}
-                {meeting.has_external_participants && <Globe className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
-              </button>
+                  {items.filter((a) => !a.done).length > 0 && (
+                    <Badge className="bg-warning/15 text-warning border-warning/30 text-xs flex-shrink-0">
+                      {items.filter((a) => !a.done).length} action{items.filter((a) => !a.done).length > 1 ? "s" : ""}
+                    </Badge>
+                  )}
+                  {meeting.has_external && <Globe className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+                </button>
 
-              <AnimatePresence>
-                {expandedMeeting === meeting.id && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-4 pb-4 border-t border-border pt-4 space-y-4">
-                      <div
-                        className="text-sm text-muted-foreground leading-relaxed prose prose-invert prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(meeting.summary.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br/>")) }}
-                      />
-
-                      {meeting.action_items.length > 0 && (
-                        <div>
-                          <p className="text-xs font-semibold text-foreground mb-2">Action Items</p>
-                          <div className="space-y-1.5">
-                            {meeting.action_items.map((item, idx) => (
-                              <div key={idx} className="flex items-center gap-2">
-                                <div className={`w-4 h-4 rounded border flex items-center justify-center ${item.done ? "bg-primary border-primary" : "border-border"}`}>
-                                  {item.done && <span className="text-xs text-primary-foreground">✓</span>}
-                                </div>
-                                <span className={`text-sm ${item.done ? "line-through text-muted-foreground" : "text-foreground"}`}>{item.task}</span>
-                                <span className="text-xs text-muted-foreground ml-auto">{item.assignee}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex items-start gap-2 p-3 rounded-lg bg-secondary/30">
-                        <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                        <p className="text-xs text-muted-foreground">{meeting.ai_insights}</p>
-                      </div>
-
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-xs text-muted-foreground">Attendees: {meeting.attendees.join(", ")}</p>
-                        {meeting.external_domains.length > 0 && (
-                          <span className="text-xs text-muted-foreground">· External: {meeting.external_domains.join(", ")}</span>
+                <AnimatePresence>
+                  {expandedMeeting === meeting.id && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden">
+                      <div className="px-4 pb-4 border-t border-border pt-4 space-y-4">
+                        {meeting.summary && (
+                          <div className="text-sm text-muted-foreground leading-relaxed prose prose-invert prose-sm max-w-none"
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(meeting.summary.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br/>")) }} />
                         )}
+                        {items.length > 0 && (
+                          <div>
+                            <p className="text-xs font-semibold text-foreground mb-2">Action Items</p>
+                            <div className="space-y-1.5">
+                              {items.map((item, idx) => (
+                                <div key={idx} className="flex items-center gap-2">
+                                  <div className={`w-4 h-4 rounded border flex items-center justify-center ${item.done ? "bg-primary border-primary" : "border-border"}`}>
+                                    {item.done && <span className="text-xs text-primary-foreground">✓</span>}
+                                  </div>
+                                  <span className={`text-sm ${item.done ? "line-through text-muted-foreground" : "text-foreground"}`}>{item.task}</span>
+                                  <span className="text-xs text-muted-foreground ml-auto">{item.assignee}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {meeting.ai_insights && (
+                          <div className="flex items-start gap-2 p-3 rounded-lg bg-secondary/30">
+                            <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                            <p className="text-xs text-muted-foreground">{meeting.ai_insights}</p>
+                          </div>
+                        )}
+                        {meeting.attendees && (
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-xs text-muted-foreground">Attendees: {meeting.attendees.join(", ")}</p>
+                            {meeting.external_domains && meeting.external_domains.length > 0 && (
+                              <span className="text-xs text-muted-foreground">· External: {meeting.external_domains.join(", ")}</span>
+                            )}
+                          </div>
+                        )}
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" className="border-border text-foreground hover:bg-secondary text-xs">
+                            <ExternalLink className="w-3 h-3 mr-1" /> Open Recording
+                          </Button>
+                          <Button variant="outline" size="sm" className="border-border text-foreground hover:bg-secondary text-xs">
+                            <Share2 className="w-3 h-3 mr-1" /> Share Link
+                          </Button>
+                        </div>
                       </div>
-
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="border-border text-foreground hover:bg-secondary text-xs">
-                          <ExternalLink className="w-3 h-3 mr-1" /> Open Recording
-                        </Button>
-                        <Button variant="outline" size="sm" className="border-border text-foreground hover:bg-secondary text-xs">
-                          <Share2 className="w-3 h-3 mr-1" /> Share Link
-                        </Button>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
         </div>
       </ScrollArea>
     </div>
