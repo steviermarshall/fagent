@@ -2,8 +2,9 @@ import { motion } from "framer-motion";
 import { Activity, CheckCircle, Zap, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useAgents, useLogs } from "@/hooks/useSupabaseData";
+import { useAgents, useLogs, useQueue } from "@/hooks/useSupabaseData";
 import { formatDistanceToNow } from "date-fns";
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 
 const MetricCard = ({ icon: Icon, label, value, trend, delay }: { icon: any; label: string; value: number; trend: string; delay: number }) => {
   const [count, setCount] = useState(0);
