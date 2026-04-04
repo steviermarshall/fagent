@@ -2,8 +2,9 @@ import { motion } from "framer-motion";
 import { Activity, CheckCircle, Zap, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useAgents, useLogs } from "@/hooks/useSupabaseData";
+import { useAgents, useLogs, useQueue } from "@/hooks/useSupabaseData";
 import { formatDistanceToNow } from "date-fns";
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 
 const MetricCard = ({ icon: Icon, label, value, trend, delay }: { icon: any; label: string; value: number; trend: string; delay: number }) => {
   const [count, setCount] = useState(0);
@@ -53,6 +54,7 @@ const statusColors: Record<string, string> = {
 const CommandDeck = () => {
   const { agents, loading: agentsLoading } = useAgents();
   const { logs, loading: logsLoading } = useLogs();
+  const { queue, loading: queueLoading } = useQueue();
 
   const activeCount = agents.filter((a) => a.status === "active").length;
 
@@ -146,6 +148,60 @@ const CommandDeck = () => {
           )}
         </motion.div>
       </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.4 }}
+        className="glass-card p-5"
+      >
+        <h3 className="text-sm font-semibold text-foreground mb-4">Queue</h3>
+        {queueLoading ? (
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        ) : queue.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No items in queue.</p>
+        ) : (
+          <ScrollArea className="h-[300px]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Action</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Claimed By</TableHead>
+                  <TableHead>Created</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {queue.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-medium text-foreground">{item.action_name || "—"}</TableCell>
+                    <TableCell>
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full ${
+                        item.status === "pending" ? "bg-warning/20 text-warning" :
+                        item.status === "claimed" ? "bg-blue-500/20 text-blue-400" :
+                        item.status === "completed" ? "bg-primary/20 text-primary" :
+                        "bg-muted text-muted-foreground"
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${
+                          item.status === "pending" ? "bg-warning" :
+                          item.status === "claimed" ? "bg-blue-400" :
+                          item.status === "completed" ? "bg-primary" :
+                          "bg-muted-foreground"
+                        }`} />
+                        {item.status || "unknown"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{item.claimed_by || "—"}</TableCell>
+                    <TableCell className="text-muted-foreground text-xs">
+                      {item.created_at ? formatDistanceToNow(new Date(item.created_at), { addSuffix: true }) : "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+        )}
+      </motion.div>
     </div>
   );
 };
