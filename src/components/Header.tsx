@@ -14,7 +14,7 @@ const Header = () => {
     >
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-3">
-          <span className="text-3xl">🐕</span>
+          <span className="text-3xl">🐺</span>
           <div>
             <h1 className="text-xl font-bold font-heading text-foreground">DOGZ TERMINAL</h1>
             <p className="text-sm text-muted-foreground">AI Agent Command Center</p>
