@@ -84,7 +84,7 @@ export interface ActivityEvent {
 export const agents: Agent[] = [
   {
     id: "kai",
-    name: "KAI",
+    name: "Agent Kai",
     emoji: "🤖",
     type: "Code Agent",
     role: "Lead Engineer",
@@ -127,29 +127,29 @@ export const agents: Agent[] = [
 ];
 
 export const tasks: Task[] = [
-  { id: "t1", title: "Implement OAuth2 flow", agentEmoji: "🤖", agentName: "KAI", priority: "high", column: "todo" },
-  { id: "t2", title: "Database migration script", agentEmoji: "🤖", agentName: "KAI", priority: "urgent", column: "todo" },
+  { id: "t1", title: "Implement OAuth2 flow", agentEmoji: "🤖", agentName: "Agent Kai", priority: "high", column: "todo" },
+  { id: "t2", title: "Database migration script", agentEmoji: "🤖", agentName: "Agent Kai", priority: "urgent", column: "todo" },
   { id: "t3", title: "Update API documentation", agentEmoji: "📋", agentName: "Dispatch Bot", priority: "medium", column: "todo" },
-  { id: "t4", title: "Refactor auth middleware", agentEmoji: "🤖", agentName: "KAI", priority: "high", progress: 65, column: "doing" },
+  { id: "t4", title: "Refactor auth middleware", agentEmoji: "🤖", agentName: "Agent Kai", priority: "high", progress: 65, column: "doing" },
   { id: "t5", title: "Deploy staging environment", agentEmoji: "📋", agentName: "Dispatch Bot", priority: "medium", progress: 30, column: "doing" },
   { id: "t6", title: "Review security policies", agentEmoji: "🛡️", agentName: "Audit Bot", priority: "high", column: "needs-input" },
   { id: "t7", title: "Approve vendor access", agentEmoji: "📋", agentName: "Dispatch Bot", priority: "urgent", column: "needs-input" },
-  { id: "t8", title: "Fix CORS configuration", agentEmoji: "🤖", agentName: "KAI", priority: "high", column: "done" },
+  { id: "t8", title: "Fix CORS configuration", agentEmoji: "🤖", agentName: "Agent Kai", priority: "high", column: "done" },
   { id: "t9", title: "Compliance report Q1", agentEmoji: "🛡️", agentName: "Audit Bot", priority: "medium", column: "done" },
   { id: "t10", title: "Onboard new microservice", agentEmoji: "📋", agentName: "Dispatch Bot", priority: "low", column: "done" },
 ];
 
 export const logEntries: LogEntry[] = [
-  { id: "l1", agentEmoji: "🤖", agentName: "KAI", message: "Detected unusual commit pattern in repo backend-core. 14 commits in 30 minutes from same author.", category: "observation", timestamp: "2026-04-03T09:45:00Z" },
+  { id: "l1", agentEmoji: "🤖", agentName: "Agent Kai", message: "Detected unusual commit pattern in repo backend-core. 14 commits in 30 minutes from same author.", category: "observation", timestamp: "2026-04-03T09:45:00Z" },
   { id: "l2", agentEmoji: "📋", agentName: "Dispatch Bot", message: "Task queue healthy. 3 tasks pending, 2 in progress. Average completion time: 23 minutes.", category: "general", timestamp: "2026-04-03T09:30:00Z" },
   { id: "l3", agentEmoji: "🛡️", agentName: "Audit Bot", message: "Reminder: Security audit for payment module due in 48 hours.", category: "reminder", timestamp: "2026-04-03T09:15:00Z" },
-  { id: "l4", agentEmoji: "🤖", agentName: "KAI", message: "FYI: New TypeScript 5.8 features available. Consider upgrading project config.", category: "fyi", timestamp: "2026-04-03T09:00:00Z" },
+  { id: "l4", agentEmoji: "🤖", agentName: "Agent Kai", message: "FYI: New TypeScript 5.8 features available. Consider upgrading project config.", category: "fyi", timestamp: "2026-04-03T09:00:00Z" },
   { id: "l5", agentEmoji: "📋", agentName: "Dispatch Bot", message: "Rerouted 3 low-priority tasks to next sprint based on capacity analysis.", category: "observation", timestamp: "2026-04-03T08:45:00Z" },
   { id: "l6", agentEmoji: "🛡️", agentName: "Audit Bot", message: "Code quality score improved from 87 to 91 after latest refactor.", category: "general", timestamp: "2026-04-03T08:30:00Z" },
-  { id: "l7", agentEmoji: "🤖", agentName: "KAI", message: "Dependency vulnerability found: lodash@4.17.20 has prototype pollution risk.", category: "observation", timestamp: "2026-04-03T08:15:00Z" },
+  { id: "l7", agentEmoji: "🤖", agentName: "Agent Kai", message: "Dependency vulnerability found: lodash@4.17.20 has prototype pollution risk.", category: "observation", timestamp: "2026-04-03T08:15:00Z" },
   { id: "l8", agentEmoji: "📋", agentName: "Dispatch Bot", message: "Reminder: Stand-up sync scheduled for 10:00 AM. All agents should report status.", category: "reminder", timestamp: "2026-04-03T08:00:00Z" },
   { id: "l9", agentEmoji: "🛡️", agentName: "Audit Bot", message: "FYI: New GDPR compliance checklist published. Updating internal policies.", category: "fyi", timestamp: "2026-04-03T07:45:00Z" },
-  { id: "l10", agentEmoji: "🤖", agentName: "KAI", message: "Successfully merged 5 feature branches. All tests passing.", category: "general", timestamp: "2026-04-03T07:30:00Z" },
+  { id: "l10", agentEmoji: "🤖", agentName: "Agent Kai", message: "Successfully merged 5 feature branches. All tests passing.", category: "general", timestamp: "2026-04-03T07:30:00Z" },
 ];
 
 export const councilSessions: CouncilSession[] = [
@@ -158,15 +158,15 @@ export const councilSessions: CouncilSession[] = [
     question: "Should we migrate from REST to GraphQL for the public API?",
     status: "concluded",
     participants: [
-      { emoji: "🤖", name: "KAI", sent: 3, limit: 3, status: "done" },
+      { emoji: "🤖", name: "Agent Kai", sent: 3, limit: 3, status: "done" },
       { emoji: "📋", name: "Dispatch Bot", sent: 2, limit: 3, status: "done" },
       { emoji: "🛡️", name: "Audit Bot", sent: 3, limit: 3, status: "done" },
     ],
     messages: [
-      { agentEmoji: "🤖", agentName: "KAI", message: "GraphQL would reduce over-fetching by ~40% based on current API usage patterns.", messageNumber: 1, timestamp: "2026-04-02T14:00:00Z" },
+      { agentEmoji: "🤖", agentName: "Agent Kai", message: "GraphQL would reduce over-fetching by ~40% based on current API usage patterns.", messageNumber: 1, timestamp: "2026-04-02T14:00:00Z" },
       { agentEmoji: "📋", agentName: "Dispatch Bot", message: "Migration would require 3 sprints. We should run both APIs in parallel during transition.", messageNumber: 2, timestamp: "2026-04-02T14:05:00Z" },
       { agentEmoji: "🛡️", agentName: "Audit Bot", message: "GraphQL introduces new attack surfaces. Need to implement query depth limiting and rate limiting per query complexity.", messageNumber: 3, timestamp: "2026-04-02T14:10:00Z" },
-      { agentEmoji: "🤖", agentName: "KAI", message: "Agreed on security concerns. Recommend Apollo Server with persisted queries to mitigate risks.", messageNumber: 4, timestamp: "2026-04-02T14:15:00Z" },
+      { agentEmoji: "🤖", agentName: "Agent Kai", message: "Agreed on security concerns. Recommend Apollo Server with persisted queries to mitigate risks.", messageNumber: 4, timestamp: "2026-04-02T14:15:00Z" },
       { agentEmoji: "📋", agentName: "Dispatch Bot", message: "Cost-benefit analysis: 3 sprint investment vs 40% performance gain. Recommend proceeding with phased rollout.", messageNumber: 5, timestamp: "2026-04-02T14:20:00Z" },
     ],
   },
@@ -175,15 +175,15 @@ export const councilSessions: CouncilSession[] = [
     question: "What monitoring stack should we adopt for the new microservices?",
     status: "active",
     participants: [
-      { emoji: "🤖", name: "KAI", sent: 2, limit: 3, status: "typing" },
+      { emoji: "🤖", name: "Agent Kai", sent: 2, limit: 3, status: "typing" },
       { emoji: "📋", name: "Dispatch Bot", sent: 1, limit: 3, status: "waiting" },
       { emoji: "🛡️", name: "Audit Bot", sent: 1, limit: 3, status: "done" },
     ],
     messages: [
       { agentEmoji: "🛡️", agentName: "Audit Bot", message: "From compliance perspective, we need log retention for 90 days minimum. DataDog and Grafana Cloud both meet this.", messageNumber: 1, timestamp: "2026-04-03T10:00:00Z" },
-      { agentEmoji: "🤖", agentName: "KAI", message: "Grafana + Prometheus + Loki gives us full observability with lower cost. We already use Prometheus for basic metrics.", messageNumber: 2, timestamp: "2026-04-03T10:05:00Z" },
+      { agentEmoji: "🤖", agentName: "Agent Kai", message: "Grafana + Prometheus + Loki gives us full observability with lower cost. We already use Prometheus for basic metrics.", messageNumber: 2, timestamp: "2026-04-03T10:05:00Z" },
       { agentEmoji: "📋", agentName: "Dispatch Bot", message: "Team capacity for setup: Grafana stack = 2 weeks, DataDog = 3 days but higher ongoing cost.", messageNumber: 3, timestamp: "2026-04-03T10:10:00Z" },
-      { agentEmoji: "🤖", agentName: "KAI", message: "Proposing hybrid: Grafana Cloud for metrics/logs, PagerDuty for alerting. Best of both worlds.", messageNumber: 4, timestamp: "2026-04-03T10:15:00Z" },
+      { agentEmoji: "🤖", agentName: "Agent Kai", message: "Proposing hybrid: Grafana Cloud for metrics/logs, PagerDuty for alerting. Best of both worlds.", messageNumber: 4, timestamp: "2026-04-03T10:15:00Z" },
     ],
   },
 ];
@@ -272,12 +272,12 @@ export const meetings: Meeting[] = [
 ];
 
 export const activityFeed: ActivityEvent[] = [
-  { id: "a1", agentEmoji: "🤖", agentName: "KAI", action: "Merged PR #142 — Auth middleware refactor", timestamp: "2 min ago" },
+  { id: "a1", agentEmoji: "🤖", agentName: "Agent Kai", action: "Merged PR #142 — Auth middleware refactor", timestamp: "2 min ago" },
   { id: "a2", agentEmoji: "🛡️", agentName: "Audit Bot", action: "Completed security scan on payment module", timestamp: "5 min ago" },
   { id: "a3", agentEmoji: "📋", agentName: "Dispatch Bot", action: "Assigned 3 new tasks to sprint backlog", timestamp: "12 min ago" },
-  { id: "a4", agentEmoji: "🤖", agentName: "KAI", action: "Deployed hotfix v2.4.1 to staging", timestamp: "18 min ago" },
+  { id: "a4", agentEmoji: "🤖", agentName: "Agent Kai", action: "Deployed hotfix v2.4.1 to staging", timestamp: "18 min ago" },
   { id: "a5", agentEmoji: "🛡️", agentName: "Audit Bot", action: "Flagged dependency vulnerability in lodash", timestamp: "25 min ago" },
   { id: "a6", agentEmoji: "📋", agentName: "Dispatch Bot", action: "Rerouted 2 tasks based on priority change", timestamp: "32 min ago" },
-  { id: "a7", agentEmoji: "🤖", agentName: "KAI", action: "Resolved 4 code review comments", timestamp: "45 min ago" },
+  { id: "a7", agentEmoji: "🤖", agentName: "Agent Kai", action: "Resolved 4 code review comments", timestamp: "45 min ago" },
   { id: "a8", agentEmoji: "🛡️", agentName: "Audit Bot", action: "Generated Q1 compliance report", timestamp: "1h ago" },
 ];
