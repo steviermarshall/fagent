@@ -13,7 +13,7 @@ const Beacon = ({ color = "#34d399" }: { color?: string }) => (
   </span>
 );
 
-const sheetColors: Record<string, string> = { ZEUS: "#38bdf8", MARSHALL: "#34d399", MONEY: "#fbbf24" };
+const sheetColors: Record<string, string> = { ZEUS: "#38bdf8", MARSHALL: "#34d399", MONEY: "#fbbf24", MATSUMOTO: "#a78bfa" };
 
 const DataFeedsDeck = () => {
   const { sheets } = useSheetSync();
