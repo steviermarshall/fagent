@@ -14,10 +14,13 @@ const Header = () => {
     >
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-3">
-          <span className="text-3xl">🐺</span>
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg font-heading shadow-lg">
+            D
+          </div>
           <div>
             <h1 className="text-xl font-bold font-heading text-foreground">DOGZ TERMINAL</h1>
-            <p className="text-sm text-muted-foreground">AI Agent Command Center</p>
+            <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">AI AGENT COMMAND CENTER · v3.0</p>
+            <p className="text-[9px] text-muted-foreground/50 font-mono uppercase tracking-wider">TIP TOP CAPITAL × PROPMYGANDA</p>
           </div>
         </div>
 
