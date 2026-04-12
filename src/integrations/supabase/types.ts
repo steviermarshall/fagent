@@ -134,6 +134,159 @@ export type Database = {
         }
         Relationships: []
       }
+      crossref_matches: {
+        Row: {
+          id: string
+          last_scan: string
+          match_count: number
+          sheet_a: string
+          sheet_b: string
+        }
+        Insert: {
+          id?: string
+          last_scan?: string
+          match_count?: number
+          sheet_a: string
+          sheet_b: string
+        }
+        Update: {
+          id?: string
+          last_scan?: string
+          match_count?: number
+          sheet_a?: string
+          sheet_b?: string
+        }
+        Relationships: []
+      }
+      email_metrics: {
+        Row: {
+          bounced: number
+          clicked: number
+          created_at: string
+          daily_target: number
+          date: string
+          day1_count: number
+          day3_count: number
+          day7_count: number
+          delivered: number
+          id: string
+          opened: number
+          replied: number
+          sent: number
+          updated_at: string
+          warmup_day: number
+        }
+        Insert: {
+          bounced?: number
+          clicked?: number
+          created_at?: string
+          daily_target?: number
+          date?: string
+          day1_count?: number
+          day3_count?: number
+          day7_count?: number
+          delivered?: number
+          id?: string
+          opened?: number
+          replied?: number
+          sent?: number
+          updated_at?: string
+          warmup_day?: number
+        }
+        Update: {
+          bounced?: number
+          clicked?: number
+          created_at?: string
+          daily_target?: number
+          date?: string
+          day1_count?: number
+          day3_count?: number
+          day7_count?: number
+          delivered?: number
+          id?: string
+          opened?: number
+          replied?: number
+          sent?: number
+          updated_at?: string
+          warmup_day?: number
+        }
+        Relationships: []
+      }
+      engagement_rates: {
+        Row: {
+          bounce_rate: number
+          click_rate: number
+          created_at: string
+          date: string
+          drop_rate: number
+          id: string
+          open_rate: number
+          reply_rate: number
+        }
+        Insert: {
+          bounce_rate?: number
+          click_rate?: number
+          created_at?: string
+          date?: string
+          drop_rate?: number
+          id?: string
+          open_rate?: number
+          reply_rate?: number
+        }
+        Update: {
+          bounce_rate?: number
+          click_rate?: number
+          created_at?: string
+          date?: string
+          drop_rate?: number
+          id?: string
+          open_rate?: number
+          reply_rate?: number
+        }
+        Relationships: []
+      }
+      github_deploys: {
+        Row: {
+          branch: string
+          commit_message: string | null
+          commit_sha: string | null
+          deployed_at: string
+          id: string
+          pipeline_build: boolean
+          pipeline_deploy: boolean
+          pipeline_health: boolean
+          pipeline_lint: boolean
+          pipeline_test: boolean
+          status: string
+        }
+        Insert: {
+          branch?: string
+          commit_message?: string | null
+          commit_sha?: string | null
+          deployed_at?: string
+          id?: string
+          pipeline_build?: boolean
+          pipeline_deploy?: boolean
+          pipeline_health?: boolean
+          pipeline_lint?: boolean
+          pipeline_test?: boolean
+          status?: string
+        }
+        Update: {
+          branch?: string
+          commit_message?: string | null
+          commit_sha?: string | null
+          deployed_at?: string
+          id?: string
+          pipeline_build?: boolean
+          pipeline_deploy?: boolean
+          pipeline_health?: boolean
+          pipeline_lint?: boolean
+          pipeline_test?: boolean
+          status?: string
+        }
+        Relationships: []
+      }
       logs: {
         Row: {
           agent_emoji: string | null
@@ -275,6 +428,75 @@ export type Database = {
           status?: string | null
           task_type?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      sheets_sync: {
+        Row: {
+          created_at: string
+          delta: number
+          id: string
+          last_sync: string
+          row_count: number
+          sheet_name: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          delta?: number
+          id?: string
+          last_sync?: string
+          row_count?: number
+          sheet_name: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          delta?: number
+          id?: string
+          last_sync?: string
+          row_count?: number
+          sheet_name?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      sms_metrics: {
+        Row: {
+          a2p_status: string
+          compliance_ok: boolean
+          created_at: string
+          delivered: number
+          id: string
+          replied: number
+          sent: number
+          updated_at: string
+          week_start: string
+          weekly_target: number
+        }
+        Insert: {
+          a2p_status?: string
+          compliance_ok?: boolean
+          created_at?: string
+          delivered?: number
+          id?: string
+          replied?: number
+          sent?: number
+          updated_at?: string
+          week_start?: string
+          weekly_target?: number
+        }
+        Update: {
+          a2p_status?: string
+          compliance_ok?: boolean
+          created_at?: string
+          delivered?: number
+          id?: string
+          replied?: number
+          sent?: number
+          updated_at?: string
+          week_start?: string
+          weekly_target?: number
         }
         Relationships: []
       }
