@@ -13,7 +13,7 @@ const Beacon = ({ color = "#34d399" }: { color?: string }) => (
   </span>
 );
 
-const sheetColors: Record<string, string> = { ZEUS: "#38bdf8", MARSHALL: "#34d399", MONEY: "#fbbf24" };
+const sheetColors: Record<string, string> = { ZEUS: "#38bdf8", MARSHALL: "#34d399", MONEY: "#fbbf24", MATSUMOTO: "#a78bfa" };
 
 const DataFeedsDeck = () => {
   const { sheets } = useSheetSync();
@@ -36,11 +36,12 @@ const DataFeedsDeck = () => {
       <p className={sectionTitle}>DATA FEEDS</p>
 
       {/* Row 1 — Sheet Detail Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {(sheets.length ? sheets : [
           { sheet_name: "ZEUS", row_count: 0, delta: 0, last_sync: new Date().toISOString(), status: "live" },
           { sheet_name: "MARSHALL", row_count: 0, delta: 0, last_sync: new Date().toISOString(), status: "live" },
           { sheet_name: "MONEY", row_count: 0, delta: 0, last_sync: new Date().toISOString(), status: "live" },
+          { sheet_name: "MATSUMOTO", row_count: 0, delta: 0, last_sync: new Date().toISOString(), status: "live" },
         ]).map((s: any, i: number) => (
           <motion.div key={s.sheet_name} {...fadeUp(i)} className="glass-card p-5">
             <div className="flex items-center justify-between mb-3">

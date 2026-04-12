@@ -80,6 +80,57 @@ export type Database = {
         }
         Relationships: []
       }
+      approval_queue: {
+        Row: {
+          approved_at: string | null
+          company: string | null
+          contact_name: string | null
+          created_at: string | null
+          dismissed_at: string | null
+          email: string | null
+          id: string
+          phone: string | null
+          sheet_source: string | null
+          status: string | null
+          suggested_email_body: string | null
+          suggested_email_subject: string | null
+          suggested_sms: string | null
+          trigger_reason: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          company?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          dismissed_at?: string | null
+          email?: string | null
+          id?: string
+          phone?: string | null
+          sheet_source?: string | null
+          status?: string | null
+          suggested_email_body?: string | null
+          suggested_email_subject?: string | null
+          suggested_sms?: string | null
+          trigger_reason?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          company?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          dismissed_at?: string | null
+          email?: string | null
+          id?: string
+          phone?: string | null
+          sheet_source?: string | null
+          status?: string | null
+          suggested_email_body?: string | null
+          suggested_email_subject?: string | null
+          suggested_sms?: string | null
+          trigger_reason?: string | null
+        }
+        Relationships: []
+      }
       board_columns: {
         Row: {
           color: string
@@ -155,6 +206,30 @@ export type Database = {
           match_count?: number
           sheet_a?: string
           sheet_b?: string
+        }
+        Relationships: []
+      }
+      daily_reports: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          id: string
+          report_date: string | null
+          report_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          report_date?: string | null
+          report_type: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          report_date?: string | null
+          report_type?: string
         }
         Relationships: []
       }
@@ -497,6 +572,42 @@ export type Database = {
           updated_at?: string
           week_start?: string
           weekly_target?: number
+        }
+        Relationships: []
+      }
+      sms_replies: {
+        Row: {
+          company: string | null
+          contact_name: string | null
+          created_at: string | null
+          from_number: string
+          id: string
+          message: string | null
+          reply_status: string | null
+          sinch_message_id: string | null
+          timestamp: string | null
+        }
+        Insert: {
+          company?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          from_number: string
+          id?: string
+          message?: string | null
+          reply_status?: string | null
+          sinch_message_id?: string | null
+          timestamp?: string | null
+        }
+        Update: {
+          company?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          from_number?: string
+          id?: string
+          message?: string | null
+          reply_status?: string | null
+          sinch_message_id?: string | null
+          timestamp?: string | null
         }
         Relationships: []
       }
