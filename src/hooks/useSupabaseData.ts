@@ -100,3 +100,163 @@ export function useQueue(pollInterval = 30000) {
 
   return { queue, loading };
 }
+
+export function useEmailMetrics() {
+  const [metrics, setMetrics] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("email_metrics")
+        .select("*")
+        .order("date", { ascending: false })
+        .limit(1);
+      if (data && data.length > 0) setMetrics(data[0]);
+      setLoading(false);
+    };
+    fetch();
+
+    const channel = supabase
+      .channel("email-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "email_metrics" }, () => fetch())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  return { metrics, loading };
+}
+
+export function useSmsMetrics() {
+  const [metrics, setMetrics] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("sms_metrics")
+        .select("*")
+        .order("week_start", { ascending: false })
+        .limit(1);
+      if (data && data.length > 0) setMetrics(data[0]);
+      setLoading(false);
+    };
+    fetch();
+
+    const channel = supabase
+      .channel("sms-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "sms_metrics" }, () => fetch())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  return { metrics, loading };
+}
+
+export function useSheetSync() {
+  const [sheets, setSheets] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("sheets_sync")
+        .select("*")
+        .order("sheet_name");
+      if (data) setSheets(data);
+      setLoading(false);
+    };
+    fetch();
+
+    const channel = supabase
+      .channel("sheets-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "sheets_sync" }, () => fetch())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  return { sheets, loading };
+}
+
+export function useEngagementRates() {
+  const [rates, setRates] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("engagement_rates")
+        .select("*")
+        .order("date", { ascending: true })
+        .limit(30);
+      if (data) setRates(data);
+      setLoading(false);
+    };
+    fetch();
+
+    const channel = supabase
+      .channel("engagement-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "engagement_rates" }, () => fetch())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  return { rates, loading };
+}
+
+export function useGithubDeploys() {
+  const [deploys, setDeploys] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("github_deploys")
+        .select("*")
+        .order("deployed_at", { ascending: false })
+        .limit(20);
+      if (data) setDeploys(data);
+      setLoading(false);
+    };
+    fetch();
+
+    const channel = supabase
+      .channel("deploys-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "github_deploys" }, () => fetch())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  return { deploys, loading };
+}
+
+export function useCrossRef() {
+  const [matches, setMatches] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("crossref_matches")
+        .select("*")
+        .order("sheet_a");
+      if (data) setMatches(data);
+      setLoading(false);
+    };
+    fetch();
+
+    const channel = supabase
+      .channel("crossref-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "crossref_matches" }, () => fetch())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  return { matches, loading };
+}
