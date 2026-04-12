@@ -69,11 +69,30 @@
 
 @layer components {
   .glass-card {
-    background: rgba(17, 24, 39, 0.7);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(12, 12, 20, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.2), transparent);
+    opacity: 0.4;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .glass-card:hover::before {
+    opacity: 1;
   }
 
   .glass-card-hover {
@@ -81,9 +100,9 @@
   }
 
   .glass-card-hover:hover {
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.08);
-    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(16, 185, 129, 0.06);
+    transform: translateY(-1px);
   }
 
   .glow-emerald {
@@ -133,5 +152,14 @@
 
   .animate-gentle-bounce {
     animation: gentle-bounce 1.5s ease-in-out infinite;
+  }
+
+  @keyframes beacon {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .animate-beacon {
+    animation: beacon 2s ease-in-out infinite;
   }
 }
