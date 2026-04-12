@@ -155,8 +155,8 @@ const OperationsDeck = () => {
               return (
                 <div key={s.sheet_name} className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-bold" style={{ color: colors[i] }}>{s.sheet_name}</span>
-                    <Beacon color={colors[i]} />
+                    <span className="text-xs font-mono font-bold" style={{ color }}>{s.sheet_name}</span>
+                    <Beacon color={color} />
                   </div>
                   <p className="text-xl font-bold font-mono text-foreground mt-1">{s.row_count.toLocaleString()}</p>
                   <p className="text-[9px] text-muted-foreground font-mono">+{s.delta} new · {formatDistanceToNow(new Date(s.last_sync), { addSuffix: true })}</p>
