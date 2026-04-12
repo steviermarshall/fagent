@@ -20,7 +20,7 @@ const Header = () => {
           <div>
             <h1 className="text-xl font-bold font-heading text-foreground">DOGZ TERMINAL</h1>
             <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">AI AGENT COMMAND CENTER · v3.0</p>
-            <p className="text-[9px] text-muted-foreground/50 font-mono uppercase tracking-wider">TIP TOP CAPITAL × PROPMYGANDA</p>
+            
           </div>
         </div>
 
