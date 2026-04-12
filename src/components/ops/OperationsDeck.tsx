@@ -148,14 +148,15 @@ const OperationsDeck = () => {
             <Database className="w-4 h-4 text-sky-400" />
             <span className={sectionTitle + " !mb-0"}>GOOGLE SHEETS LIVE</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {(sheets.length ? sheets : [{ sheet_name: "ZEUS", row_count: 0, delta: 0, last_sync: new Date().toISOString() }, { sheet_name: "MARSHALL", row_count: 0, delta: 0, last_sync: new Date().toISOString() }, { sheet_name: "MONEY", row_count: 0, delta: 0, last_sync: new Date().toISOString() }]).map((s: any, i: number) => {
-              const colors = ["#38bdf8", "#34d399", "#fbbf24"];
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {(sheets.length ? sheets : [{ sheet_name: "ZEUS", row_count: 0, delta: 0, last_sync: new Date().toISOString() }, { sheet_name: "MARSHALL", row_count: 0, delta: 0, last_sync: new Date().toISOString() }, { sheet_name: "MONEY", row_count: 0, delta: 0, last_sync: new Date().toISOString() }, { sheet_name: "MATSUMOTO", row_count: 0, delta: 0, last_sync: new Date().toISOString() }]).map((s: any, i: number) => {
+              const colors: Record<string, string> = { ZEUS: "#38bdf8", MARSHALL: "#34d399", MONEY: "#fbbf24", MATSUMOTO: "#a78bfa" };
+              const color = colors[s.sheet_name] || "#6b7280";
               return (
                 <div key={s.sheet_name} className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-bold" style={{ color: colors[i] }}>{s.sheet_name}</span>
-                    <Beacon color={colors[i]} />
+                    <span className="text-xs font-mono font-bold" style={{ color }}>{s.sheet_name}</span>
+                    <Beacon color={color} />
                   </div>
                   <p className="text-xl font-bold font-mono text-foreground mt-1">{s.row_count.toLocaleString()}</p>
                   <p className="text-[9px] text-muted-foreground font-mono">+{s.delta} new · {formatDistanceToNow(new Date(s.last_sync), { addSuffix: true })}</p>
