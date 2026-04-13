@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { Database, GitMerge } from "lucide-react";
+import { Database, GitMerge, CheckCircle2, AlertCircle } from "lucide-react";
 import { useSheetSync, useCrossRef } from "@/hooks/useSupabaseData";
+import { useLiveData } from "@/hooks/useLiveData";
 import { formatDistanceToNow } from "date-fns";
 
 const sectionTitle = "text-[11px] uppercase tracking-[2px] text-muted-foreground font-mono mb-3";
