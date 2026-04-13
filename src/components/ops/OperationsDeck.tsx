@@ -149,7 +149,11 @@ const OperationsDeck = () => {
             <span className={sectionTitle + " !mb-0"}>GOOGLE SHEETS LIVE</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {(sheets.length ? sheets : [{ sheet_name: "ZEUS", row_count: 0, delta: 0, last_sync: new Date().toISOString() }, { sheet_name: "MARSHALL", row_count: 0, delta: 0, last_sync: new Date().toISOString() }, { sheet_name: "MONEY", row_count: 0, delta: 0, last_sync: new Date().toISOString() }, { sheet_name: "MATSUMOTO", row_count: 0, delta: 0, last_sync: new Date().toISOString() }]).map((s: any, i: number) => {
+            {(() => {
+              const defaultSheets = ["ZEUS", "MARSHALL", "MONEY", "MATSUMOTO"].map(name => ({ sheet_name: name, row_count: 0, delta: 0, last_sync: new Date().toISOString() }));
+              const merged = defaultSheets.map(d => sheets.find((s: any) => s.sheet_name === d.sheet_name) || d);
+              return merged;
+            })().map((s: any, i: number) => {
               const colors: Record<string, string> = { ZEUS: "#38bdf8", MARSHALL: "#34d399", MONEY: "#fbbf24", MATSUMOTO: "#a78bfa" };
               const color = colors[s.sheet_name] || "#6b7280";
               return (
