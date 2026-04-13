@@ -37,12 +37,10 @@ const DataFeedsDeck = () => {
 
       {/* Row 1 — Sheet Detail Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {(sheets.length ? sheets : [
-          { sheet_name: "ZEUS", row_count: 0, delta: 0, last_sync: new Date().toISOString(), status: "live" },
-          { sheet_name: "MARSHALL", row_count: 0, delta: 0, last_sync: new Date().toISOString(), status: "live" },
-          { sheet_name: "MONEY", row_count: 0, delta: 0, last_sync: new Date().toISOString(), status: "live" },
-          { sheet_name: "MATSUMOTO", row_count: 0, delta: 0, last_sync: new Date().toISOString(), status: "live" },
-        ]).map((s: any, i: number) => (
+        {(() => {
+          const defaultSheets = ["ZEUS", "MARSHALL", "MONEY", "MATSUMOTO"].map(name => ({ sheet_name: name, row_count: 0, delta: 0, last_sync: new Date().toISOString(), status: "live" }));
+          return defaultSheets.map(d => sheets.find((s: any) => s.sheet_name === d.sheet_name) || d);
+        })().map((s: any, i: number) => (
           <motion.div key={s.sheet_name} {...fadeUp(i)} className="glass-card p-5">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
