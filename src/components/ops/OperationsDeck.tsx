@@ -3,7 +3,7 @@ import { Mail, MessageSquare, TrendingUp, DollarSign, Database, Cpu, Clock, Zap 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ProgressRing from "@/components/ProgressRing";
 import Sparkline from "@/components/Sparkline";
-import { useEmailMetrics, useSmsMetrics, useSheetSync, useEngagementRates, useLogs, useGithubDeploys } from "@/hooks/useSupabaseData";
+import { useEmailMetrics, useSmsMetrics, useSheetSync, useEngagementRates, useLogs, useGithubDeploys, useDealPipeline, useMerchantCount } from "@/hooks/useSupabaseData";
 import { formatDistanceToNow } from "date-fns";
 
 const sectionTitle = "text-[11px] uppercase tracking-[2px] text-muted-foreground font-mono mb-3";
