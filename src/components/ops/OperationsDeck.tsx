@@ -34,7 +34,6 @@ const OperationsDeck = () => {
   const { deploys } = useGithubDeploys();
   const { pipeline } = useDealPipeline();
   const { count: merchantCount } = useMerchantCount();
-  const { deploys } = useGithubDeploys();
 
   const emailSent = email?.sent ?? 0;
   const emailTarget = email?.daily_target ?? 300;
