@@ -3,7 +3,7 @@ import { Mail, MessageSquare, TrendingUp, DollarSign, Database, Cpu, Clock, Zap 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ProgressRing from "@/components/ProgressRing";
 import Sparkline from "@/components/Sparkline";
-import { useEmailMetrics, useSmsMetrics, useSheetSync, useEngagementRates, useLogs, useGithubDeploys } from "@/hooks/useSupabaseData";
+import { useEmailMetrics, useSmsMetrics, useSheetSync, useEngagementRates, useLogs, useGithubDeploys, useDealPipeline, useMerchantCount } from "@/hooks/useSupabaseData";
 import { formatDistanceToNow } from "date-fns";
 
 const sectionTitle = "text-[11px] uppercase tracking-[2px] text-muted-foreground font-mono mb-3";
@@ -32,6 +32,8 @@ const OperationsDeck = () => {
   const { rates } = useEngagementRates();
   const { logs } = useLogs();
   const { deploys } = useGithubDeploys();
+  const { pipeline } = useDealPipeline();
+  const { count: merchantCount } = useMerchantCount();
 
   const emailSent = email?.sent ?? 0;
   const emailTarget = email?.daily_target ?? 300;
@@ -129,13 +131,13 @@ const OperationsDeck = () => {
             <DollarSign className="w-4 h-4 text-primary" />
             <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Deal Pipeline</span>
           </div>
-          <p className="text-2xl font-bold font-mono text-foreground">$12,400</p>
-          <p className="text-[10px] text-muted-foreground font-mono">/$25,000 target</p>
+          <p className="text-2xl font-bold font-mono text-foreground">{`$${pipeline.totalAmount.toLocaleString()}`}</p>
+          <p className="text-[10px] text-muted-foreground font-mono">{`/$${pipeline.targetAmount.toLocaleString()} target · ${pipeline.dealCount} deals`}</p>
           <div className="w-full h-1.5 bg-muted rounded-full mt-3 overflow-hidden">
-            <div className="h-full rounded-full bg-primary transition-all" style={{ width: "49.6%" }} />
+            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.min((pipeline.totalAmount / pipeline.targetAmount) * 100, 100)}%` }} />
           </div>
           <div className="flex justify-between mt-1">
-            <span className="text-[9px] text-muted-foreground font-mono">49.6%</span>
+            <span className="text-[9px] text-muted-foreground font-mono">{`${((pipeline.totalAmount / pipeline.targetAmount) * 100).toFixed(1)}%`}</span>
             <span className="text-[9px] text-muted-foreground font-mono">Jun 30 deadline</span>
           </div>
         </motion.div>
@@ -180,8 +182,8 @@ const OperationsDeck = () => {
               { label: "CPU", value: "12%", color: "#34d399" },
               { label: "Memory", value: "34%", color: "#38bdf8" },
               { label: "Uptime", value: "99.9%", color: "#34d399" },
-              { label: "Cron Jobs", value: "6/6", color: "#fbbf24" },
-              { label: "API Calls", value: "1.2k", color: "#22d3ee" },
+              { label: "Merchants", value: merchantCount.toString(), color: "#fbbf24" },
+              { label: "Deals", value: pipeline.dealCount.toString(), color: "#22d3ee" },
               { label: "Last Deploy", value: lastDeploy ? formatDistanceToNow(new Date(lastDeploy.deployed_at), { addSuffix: true }) : "N/A", color: "#a78bfa" },
             ].map((item) => (
               <div key={item.label} className="text-center">

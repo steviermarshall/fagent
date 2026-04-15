@@ -260,3 +260,67 @@ export function useCrossRef() {
 
   return { matches, loading };
 }
+
+export function useDealPipeline() {
+  const [pipeline, setPipeline] = useState<{
+    totalAmount: number;
+    targetAmount: number;
+    dealCount: number;
+    stages: Record<string, { count: number; amount: number }>;
+  }>({
+    totalAmount: 0,
+    targetAmount: 25000,
+    dealCount: 0,
+    stages: {},
+  });
+  const [loading, setLoading] = useState(true);
+
+  const fetch = useCallback(async () => {
+    const { data } = await supabase.from("deals").select("stage, amount, commission");
+    if (data) {
+      const stages: Record<string, { count: number; amount: number }> = {};
+      let totalAmount = 0;
+      data.forEach((deal: any) => {
+        const stage = deal.stage || "lead";
+        if (!stages[stage]) stages[stage] = { count: 0, amount: 0 };
+        stages[stage].count += 1;
+        stages[stage].amount += Number(deal.amount || 0);
+        totalAmount += Number(deal.commission || 0);
+      });
+      setPipeline({ totalAmount, targetAmount: 25000, dealCount: data.length, stages });
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetch();
+    const channel = supabase
+      .channel("deals-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "deals" }, () => fetch())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [fetch]);
+
+  return { pipeline, loading };
+}
+
+export function useMerchantCount() {
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { count: c } = await supabase.from("merchants").select("*", { count: "exact", head: true });
+      setCount(c || 0);
+      setLoading(false);
+    };
+    fetch();
+    const channel = supabase
+      .channel("merchants-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "merchants" }, () => fetch())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  return { count, loading };
+}

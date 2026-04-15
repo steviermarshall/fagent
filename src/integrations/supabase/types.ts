@@ -233,6 +233,62 @@ export type Database = {
         }
         Relationships: []
       }
+      deals: {
+        Row: {
+          amount: number | null
+          assigned_to: string | null
+          business_name: string | null
+          commission: number | null
+          created_at: string | null
+          funded_at: string | null
+          funder: string | null
+          id: string
+          merchant_id: string | null
+          notes: string | null
+          stage: string | null
+          submitted_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number | null
+          assigned_to?: string | null
+          business_name?: string | null
+          commission?: number | null
+          created_at?: string | null
+          funded_at?: string | null
+          funder?: string | null
+          id?: string
+          merchant_id?: string | null
+          notes?: string | null
+          stage?: string | null
+          submitted_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number | null
+          assigned_to?: string | null
+          business_name?: string | null
+          commission?: number | null
+          created_at?: string | null
+          funded_at?: string | null
+          funder?: string | null
+          id?: string
+          merchant_id?: string | null
+          notes?: string | null
+          stage?: string | null
+          submitted_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_metrics: {
         Row: {
           bounced: number
@@ -469,6 +525,104 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      merchants: {
+        Row: {
+          business_name: string
+          contact_name: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          industry: string | null
+          phone: string | null
+          sheet_source: string | null
+          source: string | null
+          state: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          business_name: string
+          contact_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          industry?: string | null
+          phone?: string | null
+          sheet_source?: string | null
+          source?: string | null
+          state?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          business_name?: string
+          contact_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          industry?: string | null
+          phone?: string | null
+          sheet_source?: string | null
+          source?: string | null
+          state?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      outreach: {
+        Row: {
+          body: string | null
+          cadence_day: number | null
+          channel: string
+          created_at: string | null
+          direction: string | null
+          id: string
+          merchant_id: string | null
+          opened_at: string | null
+          replied_at: string | null
+          sent_at: string | null
+          status: string | null
+          subject: string | null
+        }
+        Insert: {
+          body?: string | null
+          cadence_day?: number | null
+          channel: string
+          created_at?: string | null
+          direction?: string | null
+          id?: string
+          merchant_id?: string | null
+          opened_at?: string | null
+          replied_at?: string | null
+          sent_at?: string | null
+          status?: string | null
+          subject?: string | null
+        }
+        Update: {
+          body?: string | null
+          cadence_day?: number | null
+          channel?: string
+          created_at?: string | null
+          direction?: string | null
+          id?: string
+          merchant_id?: string | null
+          opened_at?: string | null
+          replied_at?: string | null
+          sent_at?: string | null
+          status?: string | null
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       queue: {
         Row: {
@@ -721,7 +875,15 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      deal_pipeline_summary: {
+        Row: {
+          deal_count: number | null
+          stage: string | null
+          total_amount: number | null
+          total_commission: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
