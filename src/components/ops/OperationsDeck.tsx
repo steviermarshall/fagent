@@ -55,7 +55,7 @@ const OperationsDeck = () => {
 
       {/* Row 1 — KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
-        <motion.div {...fadeUp(0)} className="glass-card p-5">
+        <motion.div {...fadeUp(0)} className="glass-card p-3 sm:p-5">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-primary" />
@@ -78,7 +78,7 @@ const OperationsDeck = () => {
           </div>
         </motion.div>
 
-        <motion.div {...fadeUp(1)} className="glass-card p-5">
+        <motion.div {...fadeUp(1)} className="glass-card p-3 sm:p-5">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-purple-400" />
@@ -103,7 +103,7 @@ const OperationsDeck = () => {
           </div>
         </motion.div>
 
-        <motion.div {...fadeUp(2)} className="glass-card p-5">
+        <motion.div {...fadeUp(2)} className="glass-card p-3 sm:p-5">
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp className="w-4 h-4 text-amber-400" />
             <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Engagement</span>
@@ -126,7 +126,7 @@ const OperationsDeck = () => {
           </div>
         </motion.div>
 
-        <motion.div {...fadeUp(3)} className="glass-card p-5">
+        <motion.div {...fadeUp(3)} className="glass-card p-3 sm:p-5">
           <div className="flex items-center gap-2 mb-3">
             <DollarSign className="w-4 h-4 text-primary" />
             <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Deal Pipeline</span>
@@ -145,7 +145,7 @@ const OperationsDeck = () => {
 
       {/* Row 2 — Wide cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <motion.div {...fadeUp(4)} className="glass-card p-5">
+        <motion.div {...fadeUp(4)} className="glass-card p-3 sm:p-5">
           <div className="flex items-center gap-2 mb-4">
             <Database className="w-4 h-4 text-sky-400" />
             <span className={sectionTitle + " !mb-0"}>GOOGLE SHEETS LIVE</span>
@@ -172,7 +172,7 @@ const OperationsDeck = () => {
           </div>
         </motion.div>
 
-        <motion.div {...fadeUp(5)} className="glass-card p-5">
+        <motion.div {...fadeUp(5)} className="glass-card p-3 sm:p-5">
           <div className="flex items-center gap-2 mb-4">
             <Cpu className="w-4 h-4 text-cyan-400" />
             <span className={sectionTitle + " !mb-0"}>SYSTEM HEALTH</span>
@@ -196,7 +196,7 @@ const OperationsDeck = () => {
       </div>
 
       {/* Row 3 — Agent Feed */}
-      <motion.div {...fadeUp(6)} className="glass-card p-5">
+      <motion.div {...fadeUp(6)} className="glass-card p-3 sm:p-5">
         <div className="flex items-center gap-2 mb-3">
           <Zap className="w-4 h-4 text-primary" />
           <span className={sectionTitle + " !mb-0"}>AGENT FEED — LIVE</span>
