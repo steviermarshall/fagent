@@ -40,7 +40,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto">
           <Header />
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="glass-card p-1 sm:p-1.5 mb-4 sm:mb-6">
+            <div className="glass-card p-1 sm:p-1.5 mb-3 sm:mb-6 sticky top-2 z-20">
               <ScrollArea className="w-full">
                 <TabsList className="w-max flex h-auto gap-0.5 sm:gap-1 bg-transparent p-0">
                   {tabs.map((tab, i) => (
@@ -48,14 +48,14 @@ const Index = () => {
                       key={tab.id}
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
+                      transition={{ delay: i * 0.03 }}
                     >
                       <TabsTrigger
                         value={tab.id}
-                        className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary text-muted-foreground gap-1.5 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap"
+                        className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary text-muted-foreground gap-1.5 text-[11px] sm:text-sm px-2.5 sm:px-3 py-2 sm:py-2 whitespace-nowrap min-h-[36px]"
                       >
-                        <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        <span className="hidden xs:inline sm:inline">{tab.label}</span>
+                        <tab.icon className="w-4 h-4 sm:w-4 sm:h-4" />
+                        <span>{tab.label}</span>
                       </TabsTrigger>
                     </motion.div>
                   ))}

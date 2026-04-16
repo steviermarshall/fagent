@@ -50,11 +50,11 @@ const OperationsDeck = () => {
   const lastDeploy = deploys[0];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 sm:space-y-6">
       <p className={sectionTitle}>OPERATIONS OVERVIEW</p>
 
       {/* Row 1 — KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         <motion.div {...fadeUp(0)} className="glass-card p-5">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
