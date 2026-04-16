@@ -289,6 +289,42 @@ export type Database = {
           },
         ]
       }
+      email_clicks: {
+        Row: {
+          batch: number | null
+          clicked_at: string
+          contact_email: string | null
+          created_at: string
+          destination: string | null
+          id: string
+          ip_address: string | null
+          sequence: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          batch?: number | null
+          clicked_at?: string
+          contact_email?: string | null
+          created_at?: string
+          destination?: string | null
+          id?: string
+          ip_address?: string | null
+          sequence?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          batch?: number | null
+          clicked_at?: string
+          contact_email?: string | null
+          created_at?: string
+          destination?: string | null
+          id?: string
+          ip_address?: string | null
+          sequence?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       email_metrics: {
         Row: {
           bounced: number
@@ -300,6 +336,7 @@ export type Database = {
           day3_count: number
           day7_count: number
           delivered: number
+          failed: number
           id: string
           opened: number
           replied: number
@@ -317,6 +354,7 @@ export type Database = {
           day3_count?: number
           day7_count?: number
           delivered?: number
+          failed?: number
           id?: string
           opened?: number
           replied?: number
@@ -334,12 +372,46 @@ export type Database = {
           day3_count?: number
           day7_count?: number
           delivered?: number
+          failed?: number
           id?: string
           opened?: number
           replied?: number
           sent?: number
           updated_at?: string
           warmup_day?: number
+        }
+        Relationships: []
+      }
+      email_opens: {
+        Row: {
+          batch: number | null
+          contact_email: string | null
+          created_at: string
+          id: string
+          ip_address: string | null
+          opened_at: string
+          sequence: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          batch?: number | null
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          opened_at?: string
+          sequence?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          batch?: number | null
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          opened_at?: string
+          sequence?: string | null
+          user_agent?: string | null
         }
         Relationships: []
       }
@@ -624,6 +696,30 @@ export type Database = {
           },
         ]
       }
+      pipeline_goals: {
+        Row: {
+          deadline_year: number
+          funded_amount: number
+          goal_amount: number
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          deadline_year?: number
+          funded_amount?: number
+          goal_amount?: number
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          deadline_year?: number
+          funded_amount?: number
+          goal_amount?: number
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       queue: {
         Row: {
           action_name: string | null
@@ -886,7 +982,28 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      increment_email_clicks: { Args: { p_date: string }; Returns: undefined }
+      increment_email_opens: { Args: { p_date: string }; Returns: undefined }
+      increment_email_sent:
+        | {
+            Args: { p_count: number; p_date: string; p_sequence: string }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_count: number
+              p_date: string
+              p_failed?: number
+              p_sequence: string
+            }
+            Returns: undefined
+          }
+      increment_sms_sent: {
+        Args: { p_count: number; p_week_start: string }
+        Returns: undefined
+      }
+      refresh_council_from_money: { Args: never; Returns: undefined }
+      refresh_strategic_meetings: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
