@@ -265,30 +265,41 @@ export function useDealPipeline() {
   const [pipeline, setPipeline] = useState<{
     totalAmount: number;
     targetAmount: number;
+    deadlineYear: number;
     dealCount: number;
     stages: Record<string, { count: number; amount: number }>;
   }>({
     totalAmount: 0,
-    targetAmount: 25000,
+    targetAmount: 23000000,
+    deadlineYear: 2029,
     dealCount: 0,
     stages: {},
   });
   const [loading, setLoading] = useState(true);
 
   const fetch = useCallback(async () => {
-    const { data } = await supabase.from("deals").select("stage, amount, commission");
-    if (data) {
-      const stages: Record<string, { count: number; amount: number }> = {};
-      let totalAmount = 0;
-      data.forEach((deal: any) => {
+    const [dealsRes, goalsRes] = await Promise.all([
+      supabase.from("deals").select("stage, amount, commission"),
+      supabase.from("pipeline_goals").select("funded_amount, goal_amount, deadline_year").eq("id", "main").single(),
+    ]);
+
+    const stages: Record<string, { count: number; amount: number }> = {};
+    let dealCount = 0;
+    if (dealsRes.data) {
+      dealsRes.data.forEach((deal: any) => {
         const stage = deal.stage || "lead";
         if (!stages[stage]) stages[stage] = { count: 0, amount: 0 };
         stages[stage].count += 1;
         stages[stage].amount += Number(deal.amount || 0);
-        totalAmount += Number(deal.commission || 0);
       });
-      setPipeline({ totalAmount, targetAmount: 25000, dealCount: data.length, stages });
+      dealCount = dealsRes.data.length;
     }
+
+    const totalAmount = Number(goalsRes.data?.funded_amount ?? 0);
+    const targetAmount = Number(goalsRes.data?.goal_amount ?? 23000000);
+    const deadlineYear = Number(goalsRes.data?.deadline_year ?? 2029);
+
+    setPipeline({ totalAmount, targetAmount, deadlineYear, dealCount, stages });
     setLoading(false);
   }, []);
 
@@ -298,7 +309,14 @@ export function useDealPipeline() {
       .channel("deals-realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: "deals" }, () => fetch())
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    const goalsChannel = supabase
+      .channel("goals-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "pipeline_goals" }, () => fetch())
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+      supabase.removeChannel(goalsChannel);
+    };
   }, [fetch]);
 
   return { pipeline, loading };
