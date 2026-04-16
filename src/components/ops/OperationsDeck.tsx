@@ -138,7 +138,7 @@ const OperationsDeck = () => {
           </div>
           <div className="flex justify-between mt-1">
             <span className="text-[9px] text-muted-foreground font-mono">{`${((pipeline.totalAmount / pipeline.targetAmount) * 100).toFixed(1)}%`}</span>
-            <span className="text-[9px] text-muted-foreground font-mono">Jun 30 deadline</span>
+            <span className="text-[9px] text-muted-foreground font-mono">{pipeline.deadlineYear} goal</span>
           </div>
         </motion.div>
       </div>
