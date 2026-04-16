@@ -15,16 +15,17 @@ import OperationsDeck from "@/components/ops/OperationsDeck";
 import OutreachDeck from "@/components/ops/OutreachDeck";
 import DataFeedsDeck from "@/components/ops/DataFeedsDeck";
 import CICDDeck from "@/components/ops/CICDDeck";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 const tabs = [
   { id: "operations", label: "Operations", icon: Activity },
   { id: "outreach", label: "Outreach", icon: Send },
-  { id: "command", label: "Command Deck", icon: LayoutDashboard },
+  { id: "command", label: "Command", icon: LayoutDashboard },
   { id: "agents", label: "Agents", icon: Users },
-  { id: "tasks", label: "Task Board", icon: Kanban },
-  { id: "datafeeds", label: "Data Feeds", icon: Database },
+  { id: "tasks", label: "Tasks", icon: Kanban },
+  { id: "datafeeds", label: "Data", icon: Database },
   { id: "cicd", label: "CI/CD", icon: GitBranch },
-  { id: "log", label: "AI Log", icon: ScrollText },
+  { id: "log", label: "Log", icon: ScrollText },
   { id: "council", label: "Council", icon: MessagesSquare },
   { id: "meetings", label: "Meetings", icon: BarChart3 },
 ];
@@ -35,28 +36,33 @@ const Index = () => {
   return (
     <>
       <NeuralMesh />
-      <div className="relative min-h-screen p-4 md:p-6 lg:p-8" style={{ zIndex: 1 }}>
+      <div className="relative min-h-screen p-2 sm:p-4 md:p-6 lg:p-8" style={{ zIndex: 1 }}>
         <div className="max-w-7xl mx-auto">
           <Header />
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="glass-card w-full justify-start flex-wrap h-auto gap-1 p-1.5 mb-6">
-              {tabs.map((tab, i) => (
-                <motion.div
-                  key={tab.id}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                >
-                  <TabsTrigger
-                    value={tab.id}
-                    className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary text-muted-foreground gap-2 text-sm"
-                  >
-                    <tab.icon className="w-4 h-4" />
-                    <span className="hidden sm:inline">{tab.label}</span>
-                  </TabsTrigger>
-                </motion.div>
-              ))}
-            </TabsList>
+            <div className="glass-card p-1 sm:p-1.5 mb-4 sm:mb-6">
+              <ScrollArea className="w-full">
+                <TabsList className="w-max flex h-auto gap-0.5 sm:gap-1 bg-transparent p-0">
+                  {tabs.map((tab, i) => (
+                    <motion.div
+                      key={tab.id}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                    >
+                      <TabsTrigger
+                        value={tab.id}
+                        className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary text-muted-foreground gap-1.5 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap"
+                      >
+                        <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        <span className="hidden xs:inline sm:inline">{tab.label}</span>
+                      </TabsTrigger>
+                    </motion.div>
+                  ))}
+                </TabsList>
+                <ScrollBar orientation="horizontal" className="h-1" />
+              </ScrollArea>
+            </div>
 
             <AnimatePresence mode="wait">
               <motion.div
