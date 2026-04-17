@@ -18,9 +18,12 @@ const OutreachDeck = () => {
   const { metrics: email } = useEmailMetrics();
   const { metrics: sms } = useSmsMetrics();
   const { rates } = useEngagementRates();
+  const { summary: weeklyEmail } = useEmailWeeklySummary();
 
   const smsSent = sms?.sent ?? 0;
   const smsTarget = sms?.weekly_target ?? 50;
+  const weeklySent = Number(weeklyEmail?.weekly_sent ?? 0);
+  const weeklyTarget = Number(weeklyEmail?.weekly_target ?? 1500);
 
   const openData = rates.map((r: any) => Number(r.open_rate));
   const clickData = rates.map((r: any) => Number(r.click_rate));
