@@ -55,6 +55,16 @@ const OutreachDeck = () => {
                 </div>
               ))}
             </div>
+
+            <div className="mt-4 rounded-lg border border-white/[0.04] bg-white/[0.02] p-3 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] uppercase tracking-[2px] text-muted-foreground font-mono">Emails Weekly</p>
+                <p className="text-xl font-bold font-mono text-foreground mt-0.5">
+                  {weeklySent.toLocaleString()} <span className="text-muted-foreground text-sm">/ {weeklyTarget.toLocaleString()}</span>
+                </p>
+              </div>
+              <ProgressRing value={weeklySent} max={weeklyTarget} color="#34d399" size={56} thickness={5} />
+            </div>
           </motion.div>
 
           <motion.div {...fadeUp(1)} className="glass-card p-5 border-l-2 border-l-amber-500/50">
