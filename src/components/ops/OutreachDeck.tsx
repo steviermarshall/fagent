@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Mail, MessageSquare, TrendingDown, Eye, MousePointer } from "lucide-react";
 import ProgressRing from "@/components/ProgressRing";
 import Sparkline from "@/components/Sparkline";
-import { useEmailMetrics, useSmsMetrics, useEngagementRates } from "@/hooks/useSupabaseData";
+import { useEmailMetrics, useSmsMetrics, useEngagementRates, useEmailWeeklySummary } from "@/hooks/useSupabaseData";
 
 const sectionTitle = "text-[11px] uppercase tracking-[2px] text-muted-foreground font-mono mb-3";
 const fadeUp = (i: number) => ({ initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { delay: i * 0.06 } });
