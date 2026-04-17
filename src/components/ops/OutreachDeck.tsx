@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Mail, MessageSquare, TrendingDown, Eye, MousePointer } from "lucide-react";
 import ProgressRing from "@/components/ProgressRing";
 import Sparkline from "@/components/Sparkline";
-import { useEmailMetrics, useSmsMetrics, useEngagementRates } from "@/hooks/useSupabaseData";
+import { useEmailMetrics, useSmsMetrics, useEngagementRates, useEmailWeeklySummary } from "@/hooks/useSupabaseData";
 
 const sectionTitle = "text-[11px] uppercase tracking-[2px] text-muted-foreground font-mono mb-3";
 const fadeUp = (i: number) => ({ initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { delay: i * 0.06 } });
@@ -18,9 +18,12 @@ const OutreachDeck = () => {
   const { metrics: email } = useEmailMetrics();
   const { metrics: sms } = useSmsMetrics();
   const { rates } = useEngagementRates();
+  const { summary: weeklyEmail } = useEmailWeeklySummary();
 
   const smsSent = sms?.sent ?? 0;
   const smsTarget = sms?.weekly_target ?? 50;
+  const weeklySent = Number(weeklyEmail?.weekly_sent ?? 0);
+  const weeklyTarget = Number(weeklyEmail?.weekly_target ?? 1500);
 
   const openData = rates.map((r: any) => Number(r.open_rate));
   const clickData = rates.map((r: any) => Number(r.click_rate));
@@ -51,6 +54,16 @@ const OutreachDeck = () => {
                   <p className="text-[9px] text-muted-foreground font-mono">{item.label}</p>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-4 rounded-lg border border-white/[0.04] bg-white/[0.02] p-3 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] uppercase tracking-[2px] text-muted-foreground font-mono">Emails Weekly</p>
+                <p className="text-xl font-bold font-mono text-foreground mt-0.5">
+                  {weeklySent.toLocaleString()} <span className="text-muted-foreground text-sm">/ {weeklyTarget.toLocaleString()}</span>
+                </p>
+              </div>
+              <ProgressRing value={weeklySent} max={weeklyTarget} color="#34d399" size={56} thickness={5} />
             </div>
           </motion.div>
 
