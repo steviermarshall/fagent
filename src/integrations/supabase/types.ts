@@ -980,6 +980,18 @@ export type Database = {
         }
         Relationships: []
       }
+      email_weekly_summary: {
+        Row: {
+          day1_sent: number | null
+          day3_sent: number | null
+          day7_sent: number | null
+          week_start: string | null
+          weekly_opened: number | null
+          weekly_sent: number | null
+          weekly_target: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       increment_email_clicks: { Args: { p_date: string }; Returns: undefined }

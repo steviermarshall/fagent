@@ -128,6 +128,34 @@ export function useEmailMetrics() {
   return { metrics, loading };
 }
 
+export function useEmailWeeklySummary() {
+  const [summary, setSummary] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("email_weekly_summary")
+        .select("*")
+        .order("week_start", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      setSummary(data);
+      setLoading(false);
+    };
+    fetch();
+
+    const channel = supabase
+      .channel("email-weekly-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "email_metrics" }, () => fetch())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  return { summary, loading };
+}
+
 export function useSmsMetrics() {
   const [metrics, setMetrics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
