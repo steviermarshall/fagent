@@ -159,6 +159,7 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          meeting_detected: boolean | null
           messages: Json | null
           participants: Json | null
           question: string
@@ -168,6 +169,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
+          meeting_detected?: boolean | null
           messages?: Json | null
           participants?: Json | null
           question: string
@@ -177,6 +179,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          meeting_detected?: boolean | null
           messages?: Json | null
           participants?: Json | null
           question?: string
@@ -783,6 +786,42 @@ export type Database = {
           row_count?: number
           sheet_name?: string
           status?: string
+        }
+        Relationships: []
+      }
+      sms_inbound: {
+        Row: {
+          ai_response: string | null
+          conversation_id: string | null
+          created_at: string | null
+          from_number: string | null
+          id: string
+          message_body: string | null
+          received_at: string | null
+          sinch_payload: Json | null
+          status: string | null
+        }
+        Insert: {
+          ai_response?: string | null
+          conversation_id?: string | null
+          created_at?: string | null
+          from_number?: string | null
+          id?: string
+          message_body?: string | null
+          received_at?: string | null
+          sinch_payload?: Json | null
+          status?: string | null
+        }
+        Update: {
+          ai_response?: string | null
+          conversation_id?: string | null
+          created_at?: string | null
+          from_number?: string | null
+          id?: string
+          message_body?: string | null
+          received_at?: string | null
+          sinch_payload?: Json | null
+          status?: string | null
         }
         Relationships: []
       }
