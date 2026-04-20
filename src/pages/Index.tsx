@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Activity, Send, LayoutDashboard, MessageSquare, Kanban, Database, GitBranch, ScrollText, MessagesSquare, BarChart3 } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import NeuralMesh from "@/components/NeuralMesh";
+import Sidebar from "@/components/shell/Sidebar";
+import CommandBar from "@/components/shell/CommandBar";
+import Footer from "@/components/Footer";
+
 import CommandDeck from "@/components/CommandDeck";
 import SMSTab from "@/components/SMSTab";
 import TaskBoard from "@/components/TaskBoard";
@@ -15,77 +16,70 @@ import OperationsDeck from "@/components/ops/OperationsDeck";
 import OutreachDeck from "@/components/ops/OutreachDeck";
 import DataFeedsDeck from "@/components/ops/DataFeedsDeck";
 import CICDDeck from "@/components/ops/CICDDeck";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
-const tabs = [
-  { id: "operations", label: "Operations", icon: Activity },
-  { id: "outreach", label: "Outreach", icon: Send },
-  { id: "command", label: "Command", icon: LayoutDashboard },
-  { id: "sms", label: "SMS", icon: MessageSquare },
-  { id: "tasks", label: "Tasks", icon: Kanban },
-  { id: "datafeeds", label: "Data", icon: Database },
-  { id: "cicd", label: "CI/CD", icon: GitBranch },
-  { id: "sheets", label: "Sheets", icon: ScrollText },
-  { id: "council", label: "Council", icon: MessagesSquare },
-  { id: "meetings", label: "Meetings", icon: BarChart3 },
-];
+const NAV_LABELS: Record<string, string> = {
+  sheets: "📊 Sheets",
+  sms: "💬 SMS",
+  council: "⚖️ Council",
+  datafeeds: "🏢 Data",
+  meetings: "🗓️ Meetings",
+  cicd: "⚙️ CI/CD",
+  operations: "Operations",
+  outreach: "Outreach",
+  command: "Command",
+  tasks: "Tasks",
+};
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("operations");
+  const [activeTab, setActiveTab] = useState("sheets");
 
   return (
     <>
       <NeuralMesh />
-      <div className="relative min-h-screen p-2 sm:p-4 md:p-6 lg:p-8" style={{ zIndex: 1 }}>
-        <div className="max-w-7xl mx-auto">
-          <Header />
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="glass-card p-1 sm:p-1.5 mb-3 sm:mb-6 sticky top-2 z-20">
-              <ScrollArea className="w-full">
-                <TabsList className="w-max flex h-auto gap-0.5 sm:gap-1 bg-transparent p-0">
-                  {tabs.map((tab, i) => (
-                    <motion.div
-                      key={tab.id}
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.03 }}
-                    >
-                      <TabsTrigger
-                        value={tab.id}
-                        className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary text-muted-foreground gap-1.5 text-[11px] sm:text-sm px-2.5 sm:px-3 py-2 sm:py-2 whitespace-nowrap min-h-[36px]"
-                      >
-                        <tab.icon className="w-4 h-4 sm:w-4 sm:h-4" />
-                        <span>{tab.label}</span>
-                      </TabsTrigger>
-                    </motion.div>
-                  ))}
-                </TabsList>
-                <ScrollBar orientation="horizontal" className="h-1" />
-              </ScrollArea>
-            </div>
+      <div className="relative min-h-screen flex" style={{ zIndex: 1 }}>
+        <Sidebar active={activeTab} onChange={setActiveTab} />
 
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                <TabsContent value="operations" className="mt-0"><OperationsDeck /></TabsContent>
-                <TabsContent value="outreach" className="mt-0"><OutreachDeck /></TabsContent>
-                <TabsContent value="command" className="mt-0"><CommandDeck /></TabsContent>
-                <TabsContent value="sms" className="mt-0"><SMSTab /></TabsContent>
-                <TabsContent value="tasks" className="mt-0"><TaskBoard /></TabsContent>
-                <TabsContent value="datafeeds" className="mt-0"><DataFeedsDeck /></TabsContent>
-                <TabsContent value="cicd" className="mt-0"><CICDDeck /></TabsContent>
-                <TabsContent value="sheets" className="mt-0"><SheetsTab /></TabsContent>
-                <TabsContent value="council" className="mt-0"><Council /></TabsContent>
-                <TabsContent value="meetings" className="mt-0"><MeetingIntelligence /></TabsContent>
-              </motion.div>
-            </AnimatePresence>
-          </Tabs>
-          <Footer />
+        <div className="flex-1 min-w-0 md:pl-[56px]">
+          <CommandBar />
+
+          {/* Mobile nav select */}
+          <div className="md:hidden px-3 pt-3">
+            <select
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value)}
+              className="w-full h-10 rounded-lg bg-surface-2 border border-hairline px-3 text-sm font-medium"
+            >
+              {Object.entries(NAV_LABELS).map(([id, label]) => (
+                <option key={id} value={id}>{label}</option>
+              ))}
+            </select>
+          </div>
+
+          <main className="px-3 sm:px-5 lg:px-8 py-4 sm:py-6 max-w-[1400px] mx-auto">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  <TabsContent value="sheets" className="mt-0"><SheetsTab /></TabsContent>
+                  <TabsContent value="sms" className="mt-0"><SMSTab /></TabsContent>
+                  <TabsContent value="council" className="mt-0"><Council /></TabsContent>
+                  <TabsContent value="datafeeds" className="mt-0"><DataFeedsDeck /></TabsContent>
+                  <TabsContent value="meetings" className="mt-0"><MeetingIntelligence /></TabsContent>
+                  <TabsContent value="cicd" className="mt-0"><CICDDeck /></TabsContent>
+                  <TabsContent value="operations" className="mt-0"><OperationsDeck /></TabsContent>
+                  <TabsContent value="outreach" className="mt-0"><OutreachDeck /></TabsContent>
+                  <TabsContent value="command" className="mt-0"><CommandDeck /></TabsContent>
+                  <TabsContent value="tasks" className="mt-0"><TaskBoard /></TabsContent>
+                </motion.div>
+              </AnimatePresence>
+            </Tabs>
+            <Footer />
+          </main>
         </div>
       </div>
     </>
