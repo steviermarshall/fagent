@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Activity, Send, LayoutDashboard, Users, Kanban, Database, GitBranch, ScrollText, MessagesSquare, BarChart3 } from "lucide-react";
+import { Activity, Send, LayoutDashboard, MessageSquare, Kanban, Database, GitBranch, ScrollText, MessagesSquare, BarChart3 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NeuralMesh from "@/components/NeuralMesh";
 import CommandDeck from "@/components/CommandDeck";
-import AgentProfiles from "@/components/AgentProfiles";
+import SMSTab from "@/components/SMSTab";
 import TaskBoard from "@/components/TaskBoard";
 import AILog from "@/components/AILog";
 import Council from "@/components/Council";
@@ -21,7 +21,7 @@ const tabs = [
   { id: "operations", label: "Operations", icon: Activity },
   { id: "outreach", label: "Outreach", icon: Send },
   { id: "command", label: "Command", icon: LayoutDashboard },
-  { id: "agents", label: "Agents", icon: Users },
+  { id: "sms", label: "SMS", icon: MessageSquare },
   { id: "tasks", label: "Tasks", icon: Kanban },
   { id: "datafeeds", label: "Data", icon: Database },
   { id: "cicd", label: "CI/CD", icon: GitBranch },
@@ -75,7 +75,7 @@ const Index = () => {
                 <TabsContent value="operations" className="mt-0"><OperationsDeck /></TabsContent>
                 <TabsContent value="outreach" className="mt-0"><OutreachDeck /></TabsContent>
                 <TabsContent value="command" className="mt-0"><CommandDeck /></TabsContent>
-                <TabsContent value="agents" className="mt-0"><AgentProfiles /></TabsContent>
+                <TabsContent value="sms" className="mt-0"><SMSTab /></TabsContent>
                 <TabsContent value="tasks" className="mt-0"><TaskBoard /></TabsContent>
                 <TabsContent value="datafeeds" className="mt-0"><DataFeedsDeck /></TabsContent>
                 <TabsContent value="cicd" className="mt-0"><CICDDeck /></TabsContent>
