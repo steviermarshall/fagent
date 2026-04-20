@@ -759,6 +759,54 @@ export type Database = {
         }
         Relationships: []
       }
+      sheet_status: {
+        Row: {
+          current_row: number | null
+          id: string
+          last_run_at: string | null
+          last_run_failed: number | null
+          last_run_sent: number | null
+          last_subject: string | null
+          sequences: Json | null
+          sheet_id: string | null
+          sheet_name: string | null
+          status: string | null
+          total_rows: number | null
+          type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          current_row?: number | null
+          id: string
+          last_run_at?: string | null
+          last_run_failed?: number | null
+          last_run_sent?: number | null
+          last_subject?: string | null
+          sequences?: Json | null
+          sheet_id?: string | null
+          sheet_name?: string | null
+          status?: string | null
+          total_rows?: number | null
+          type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          current_row?: number | null
+          id?: string
+          last_run_at?: string | null
+          last_run_failed?: number | null
+          last_run_sent?: number | null
+          last_subject?: string | null
+          sequences?: Json | null
+          sheet_id?: string | null
+          sheet_name?: string | null
+          status?: string | null
+          total_rows?: number | null
+          type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       sheets_sync: {
         Row: {
           created_at: string

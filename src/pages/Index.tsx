@@ -8,7 +8,7 @@ import NeuralMesh from "@/components/NeuralMesh";
 import CommandDeck from "@/components/CommandDeck";
 import SMSTab from "@/components/SMSTab";
 import TaskBoard from "@/components/TaskBoard";
-import AILog from "@/components/AILog";
+import SheetsTab from "@/components/SheetsTab";
 import Council from "@/components/Council";
 import MeetingIntelligence from "@/components/MeetingIntelligence";
 import OperationsDeck from "@/components/ops/OperationsDeck";
@@ -25,7 +25,7 @@ const tabs = [
   { id: "tasks", label: "Tasks", icon: Kanban },
   { id: "datafeeds", label: "Data", icon: Database },
   { id: "cicd", label: "CI/CD", icon: GitBranch },
-  { id: "log", label: "Log", icon: ScrollText },
+  { id: "sheets", label: "Sheets", icon: ScrollText },
   { id: "council", label: "Council", icon: MessagesSquare },
   { id: "meetings", label: "Meetings", icon: BarChart3 },
 ];
@@ -79,7 +79,7 @@ const Index = () => {
                 <TabsContent value="tasks" className="mt-0"><TaskBoard /></TabsContent>
                 <TabsContent value="datafeeds" className="mt-0"><DataFeedsDeck /></TabsContent>
                 <TabsContent value="cicd" className="mt-0"><CICDDeck /></TabsContent>
-                <TabsContent value="log" className="mt-0"><AILog /></TabsContent>
+                <TabsContent value="sheets" className="mt-0"><SheetsTab /></TabsContent>
                 <TabsContent value="council" className="mt-0"><Council /></TabsContent>
                 <TabsContent value="meetings" className="mt-0"><MeetingIntelligence /></TabsContent>
               </motion.div>
