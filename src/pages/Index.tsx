@@ -18,18 +18,6 @@ import OutreachDeck from "@/components/ops/OutreachDeck";
 import DataFeedsDeck from "@/components/ops/DataFeedsDeck";
 import CICDDeck from "@/components/ops/CICDDeck";
 
-const NAV_LABELS: Record<string, string> = {
-  sheets: "📊 Sheets",
-  sms: "💬 SMS",
-  council: "⚖️ Council",
-  datafeeds: "🏢 Data",
-  meetings: "🗓️ Meetings",
-  cicd: "⚙️ CI/CD",
-  operations: "Operations",
-  outreach: "Outreach",
-  command: "Command",
-  tasks: "Tasks",
-};
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("sheets");
