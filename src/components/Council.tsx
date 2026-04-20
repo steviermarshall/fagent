@@ -3,6 +3,42 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, Check, Loader2, Clock } from "lucide-react";
 import { useCouncilSessions } from "@/hooks/useSupabaseData";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+const STAGE_OPTIONS = [
+  { value: "lead", label: "lead" },
+  { value: "contacted", label: "contacted" },
+  { value: "vc&id", label: "🆔 vc&id" },
+  { value: "documents", label: "📝 documents" },
+  { value: "signed", label: "✍️ signed" },
+  { value: "funded", label: "💰 funded" },
+  { value: "dead", label: "💀 dead" },
+];
+
+function extractBusinessName(question: string): string | null {
+  // Format: "Deal review: <business_name> — $..."
+  const match = question.match(/Deal review:\s*(.+?)\s*—/);
+  return match ? match[1].trim() : null;
+}
+
+async function updateDealStage(question: string, stage: string) {
+  const businessName = extractBusinessName(question);
+  if (!businessName) {
+    toast.error("Could not identify deal from session");
+    return;
+  }
+  const { error } = await supabase
+    .from("deals")
+    .update({ pending_stage: stage, pending_stage_at: new Date().toISOString() })
+    .eq("business_name", businessName);
+  if (error) {
+    console.error(error);
+    toast.error("Failed to update stage");
+    return;
+  }
+  toast.success("Stage updated — syncing to sheet...");
+}
 
 const statusIcons: Record<string, React.ReactNode> = {
   done: <Check className="w-3 h-3 text-primary" />,
