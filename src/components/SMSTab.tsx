@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface SmsRow {
   id: string;
@@ -9,7 +10,12 @@ interface SmsRow {
   ai_response: string | null;
   status: "pending" | "responded" | "error";
   conversation_id: string | null;
+  hot_lead?: boolean | null;
+  reply_sent?: boolean | null;
 }
+
+const SUPABASE_FN_URL = "https://gdbprswowbqndmcunbyj.supabase.co/functions/v1";
+const ANON_KEY = "sb_publishable_ojDXPF3aH162F74FjaPJDA_Cf0dT_zf";
 
 function StatusBadge({ status }: { status: SmsRow["status"] }) {
   const map = {
@@ -43,11 +49,14 @@ export default function SMSTab() {
   const [rows, setRows] = useState<SmsRow[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<Record<string, string>>({});
+  const [sending, setSending] = useState<Record<string, boolean>>({});
+  const [flagging, setFlagging] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     supabase
       .from("sms_inbound")
-      .select("id, received_at, from_number, message_body, ai_response, status, conversation_id")
+      .select("id, received_at, from_number, message_body, ai_response, status, conversation_id, hot_lead, reply_sent")
       .order("received_at", { ascending: false })
       .limit(100)
       .then(({ data, error }) => {
@@ -72,6 +81,57 @@ export default function SMSTab() {
     };
   }, []);
 
+  async function flagHotLead(rowId: string) {
+    setFlagging((p) => ({ ...p, [rowId]: true }));
+    try {
+      const res = await fetch(`${SUPABASE_FN_URL}/flag-hot-lead`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${ANON_KEY}`,
+          apikey: ANON_KEY,
+        },
+        body: JSON.stringify({ row_id: rowId }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setRows((prev) => prev.map((r) => (r.id === rowId ? { ...r, hot_lead: true } : r)));
+      toast.success("🔥 Marked as hot lead");
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to flag hot lead");
+    } finally {
+      setFlagging((p) => ({ ...p, [rowId]: false }));
+    }
+  }
+
+  async function sendReply(row: SmsRow) {
+    const message = editing[row.id];
+    if (!message?.trim()) {
+      toast.error("Message is empty");
+      return;
+    }
+    setSending((p) => ({ ...p, [row.id]: true }));
+    try {
+      const res = await fetch(`${SUPABASE_FN_URL}/sms-reply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${ANON_KEY}`,
+          apikey: ANON_KEY,
+        },
+        body: JSON.stringify({ row_id: row.id, to_number: row.from_number, message }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, reply_sent: true, ai_response: message } : r)));
+      toast.success("✅ Reply sent");
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to send reply");
+    } finally {
+      setSending((p) => ({ ...p, [row.id]: false }));
+    }
+  }
+
   const total = rows.length;
   const pending = rows.filter((r) => r.status === "pending").length;
   const responded = rows.filter((r) => r.status === "responded").length;
@@ -85,9 +145,7 @@ export default function SMSTab() {
           <span className="text-xs text-muted-foreground hidden sm:inline">— Sinch → Claude AI</span>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <span className="px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
-            {total} total
-          </span>
+          <span className="px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">{total} total</span>
           {pending > 0 && (
             <span className="px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-300 border border-yellow-500/40">
               {pending} pending
@@ -111,6 +169,8 @@ export default function SMSTab() {
         )}
         {rows.map((row) => {
           const isOpen = expanded === row.id;
+          const isEditing = editing[row.id] !== undefined;
+          const replied = !!row.reply_sent;
           return (
             <div key={row.id} className="rounded-lg border border-border/50 bg-card/40 overflow-hidden">
               <button
@@ -121,6 +181,16 @@ export default function SMSTab() {
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <span className="font-mono text-xs sm:text-sm font-medium">{fmtPhone(row.from_number)}</span>
                     <StatusBadge status={row.status} />
+                    {row.hot_lead && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-300 border border-red-500/40">
+                        🔥 HOT
+                      </span>
+                    )}
+                    {replied && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-500/20 text-green-300 border border-green-500/40">
+                        Replied
+                      </span>
+                    )}
                   </div>
                   <p className="text-sm text-foreground/80 truncate">{row.message_body}</p>
                 </div>
@@ -155,11 +225,49 @@ export default function SMSTab() {
                     </p>
                     {row.status === "pending" ? (
                       <p className="text-sm text-yellow-300/80 italic">Generating response…</p>
+                    ) : isEditing ? (
+                      <textarea
+                        value={editing[row.id]}
+                        onChange={(e) => setEditing((p) => ({ ...p, [row.id]: e.target.value }))}
+                        disabled={replied}
+                        className="w-full min-h-[100px] rounded-md border border-border/60 bg-background/60 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60"
+                      />
                     ) : row.status === "error" ? (
                       <p className="text-sm text-red-300 whitespace-pre-wrap">{row.ai_response}</p>
                     ) : (
                       <p className="text-sm whitespace-pre-wrap">{row.ai_response}</p>
                     )}
+
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {!row.hot_lead && (
+                        <button
+                          onClick={() => flagHotLead(row.id)}
+                          disabled={flagging[row.id]}
+                          className="px-3 py-1.5 text-xs rounded-md bg-red-500/15 text-red-300 border border-red-500/40 hover:bg-red-500/25 transition-colors disabled:opacity-50"
+                        >
+                          {flagging[row.id] ? "Flagging..." : "🔥 Hot Lead"}
+                        </button>
+                      )}
+
+                      {!isEditing && !replied && row.status !== "pending" && (
+                        <button
+                          onClick={() => setEditing((p) => ({ ...p, [row.id]: row.ai_response ?? "" }))}
+                          className="px-3 py-1.5 text-xs rounded-md bg-primary/15 text-primary border border-primary/40 hover:bg-primary/25 transition-colors"
+                        >
+                          ✏️ Edit & Send
+                        </button>
+                      )}
+
+                      {isEditing && !replied && (
+                        <button
+                          onClick={() => sendReply(row)}
+                          disabled={sending[row.id]}
+                          className="px-3 py-1.5 text-xs rounded-md bg-green-500/20 text-green-300 border border-green-500/40 hover:bg-green-500/30 transition-colors disabled:opacity-50"
+                        >
+                          {sending[row.id] ? "Sending..." : "Send"}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
