@@ -4,6 +4,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import NeuralMesh from "@/components/NeuralMesh";
 import Sidebar from "@/components/shell/Sidebar";
 import CommandBar from "@/components/shell/CommandBar";
+import { MobileBottomTabs } from "@/components/shell/MobileNav";
 import Footer from "@/components/Footer";
 
 import CommandDeck from "@/components/CommandDeck";
@@ -17,18 +18,6 @@ import OutreachDeck from "@/components/ops/OutreachDeck";
 import DataFeedsDeck from "@/components/ops/DataFeedsDeck";
 import CICDDeck from "@/components/ops/CICDDeck";
 
-const NAV_LABELS: Record<string, string> = {
-  sheets: "📊 Sheets",
-  sms: "💬 SMS",
-  council: "⚖️ Council",
-  datafeeds: "🏢 Data",
-  meetings: "🗓️ Meetings",
-  cicd: "⚙️ CI/CD",
-  operations: "Operations",
-  outreach: "Outreach",
-  command: "Command",
-  tasks: "Tasks",
-};
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("sheets");
@@ -40,22 +29,9 @@ const Index = () => {
         <Sidebar active={activeTab} onChange={setActiveTab} />
 
         <div className="flex-1 min-w-0 md:pl-[56px]">
-          <CommandBar />
+          <CommandBar active={activeTab} onNavChange={setActiveTab} />
 
-          {/* Mobile nav select */}
-          <div className="md:hidden px-3 pt-3">
-            <select
-              value={activeTab}
-              onChange={(e) => setActiveTab(e.target.value)}
-              className="w-full h-10 rounded-lg bg-surface-2 border border-hairline px-3 text-sm font-medium"
-            >
-              {Object.entries(NAV_LABELS).map(([id, label]) => (
-                <option key={id} value={id}>{label}</option>
-              ))}
-            </select>
-          </div>
-
-          <main className="px-3 sm:px-5 lg:px-8 py-4 sm:py-6 max-w-[1400px] mx-auto">
+          <main className="px-3 sm:px-5 lg:px-8 py-4 sm:py-6 pb-20 md:pb-6 max-w-[1400px] mx-auto">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <AnimatePresence mode="wait">
                 <motion.div
@@ -82,6 +58,7 @@ const Index = () => {
           </main>
         </div>
       </div>
+      <MobileBottomTabs active={activeTab} onChange={setActiveTab} />
     </>
   );
 };
