@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Flame, Send, Pencil, ChevronDown } from "lucide-react";
 
 interface SmsRow {
   id: string;
@@ -19,12 +20,12 @@ const ANON_KEY = "sb_publishable_ojDXPF3aH162F74FjaPJDA_Cf0dT_zf";
 
 function StatusBadge({ status }: { status: SmsRow["status"] }) {
   const map = {
-    pending: { label: "Pending", cls: "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40" },
-    responded: { label: "Responded", cls: "bg-green-500/20 text-green-300 border border-green-500/40" },
-    error: { label: "Error", cls: "bg-red-500/20 text-red-300 border border-red-500/40" },
-  };
+    pending:   { label: "Pending",   cls: "pill pill-warning" },
+    responded: { label: "Responded", cls: "pill pill-success" },
+    error:     { label: "Error",     cls: "pill pill-danger" },
+  } as const;
   const { label, cls } = map[status] ?? map.pending;
-  return <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${cls}`}>{label}</span>;
+  return <span className={`${cls} animate-badge-fade`}>{label}</span>;
 }
 
 function fmtPhone(raw: string) {
@@ -45,6 +46,13 @@ function fmtTime(iso: string) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+function rowAccent(row: SmsRow): string {
+  if (row.hot_lead) return "accent-l-danger";
+  if (row.reply_sent || row.status === "responded") return "accent-l-success";
+  if (row.status === "pending") return "accent-l-warning";
+  return "accent-l-info";
+}
+
 export default function SMSTab() {
   const [rows, setRows] = useState<SmsRow[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -52,6 +60,7 @@ export default function SMSTab() {
   const [editing, setEditing] = useState<Record<string, string>>({});
   const [sending, setSending] = useState<Record<string, boolean>>({});
   const [flagging, setFlagging] = useState<Record<string, boolean>>({});
+  const newIds = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     supabase
@@ -69,16 +78,16 @@ export default function SMSTab() {
   useEffect(() => {
     const channel = supabase
       .channel("sms_inbound_realtime")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "sms_inbound" }, (payload) =>
-        setRows((prev) => [payload.new as SmsRow, ...prev])
-      )
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "sms_inbound" }, (payload) => {
+        const row = payload.new as SmsRow;
+        newIds.current.add(row.id);
+        setRows((prev) => [row, ...prev]);
+      })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "sms_inbound" }, (payload) =>
         setRows((prev) => prev.map((r) => (r.id === (payload.new as SmsRow).id ? (payload.new as SmsRow) : r)))
       )
       .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   async function flagHotLead(rowId: string) {
@@ -86,11 +95,7 @@ export default function SMSTab() {
     try {
       const res = await fetch(`${SUPABASE_FN_URL}/flag-hot-lead`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${ANON_KEY}`,
-          apikey: ANON_KEY,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${ANON_KEY}`, apikey: ANON_KEY },
         body: JSON.stringify({ row_id: rowId }),
       });
       if (!res.ok) throw new Error(await res.text());
@@ -114,11 +119,7 @@ export default function SMSTab() {
     try {
       const res = await fetch(`${SUPABASE_FN_URL}/sms-reply`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${ANON_KEY}`,
-          apikey: ANON_KEY,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${ANON_KEY}`, apikey: ANON_KEY },
         body: JSON.stringify({ row_id: row.id, to_number: row.from_number, message }),
       });
       if (!res.ok) throw new Error(await res.text());
@@ -135,107 +136,111 @@ export default function SMSTab() {
   const total = rows.length;
   const pending = rows.filter((r) => r.status === "pending").length;
   const responded = rows.filter((r) => r.status === "responded").length;
+  const hot = rows.filter((r) => r.hot_lead).length;
 
   return (
-    <div className="glass-card p-4 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">💬</span>
-          <h2 className="text-lg sm:text-xl font-semibold tracking-tight">SMS INBOX</h2>
-          <span className="text-xs text-muted-foreground hidden sm:inline">— Sinch → Claude AI</span>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">SMS Inbox</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">Sinch → Claude · live replies</p>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <span className="px-2 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">{total} total</span>
-          {pending > 0 && (
-            <span className="px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-300 border border-yellow-500/40">
-              {pending} pending
-            </span>
-          )}
-          {responded > 0 && (
-            <span className="px-2 py-1 rounded-full bg-green-500/20 text-green-300 border border-green-500/40">
-              {responded} responded
-            </span>
-          )}
+          <span className="pill pill-info nums">{total} total</span>
+          {pending > 0   && <span className="pill pill-warning nums">{pending} pending</span>}
+          {responded > 0 && <span className="pill pill-success nums">{responded} responded</span>}
+          {hot > 0       && <span className="pill pill-danger nums">{hot} hot</span>}
         </div>
       </div>
 
-      <div className="space-y-2">
-        {loading && <p className="text-sm text-muted-foreground p-4 text-center">Loading...</p>}
+      {/* Cards */}
+      <div className="space-y-2.5">
+        {loading && <p className="text-sm text-muted-foreground p-4 text-center">Loading…</p>}
+
         {!loading && rows.length === 0 && (
-          <div className="p-8 text-center">
-            <p className="text-sm text-muted-foreground">No inbound SMS yet.</p>
-            <p className="text-xs text-muted-foreground/70 mt-1">Waiting for Sinch webhooks...</p>
+          <div className="empty-state-border rounded-2xl p-10 text-center">
+            <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-primary to-council flex items-center justify-center text-white font-extrabold text-lg mb-4">
+              D
+            </div>
+            <p className="text-sm font-semibold text-foreground">Waiting for replies.</p>
+            <p className="text-xs text-muted-foreground mt-1">Your outreach is running.</p>
           </div>
         )}
+
         {rows.map((row) => {
           const isOpen = expanded === row.id;
           const isEditing = editing[row.id] !== undefined;
           const replied = !!row.reply_sent;
+          const isNew = newIds.current.has(row.id);
+
           return (
-            <div key={row.id} className="rounded-lg border border-border/50 bg-card/40 overflow-hidden">
+            <div
+              key={row.id}
+              className={`glass-card-hover ${rowAccent(row)} ${isNew ? "animate-slide-in-down" : "animate-fade-in"}`}
+            >
               <button
-                className="w-full p-3 flex items-start gap-3 hover:bg-accent/30 transition-colors text-left"
+                className="w-full p-4 flex items-start gap-3 text-left"
                 onClick={() => setExpanded(isOpen ? null : row.id)}
               >
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="font-mono text-xs sm:text-sm font-medium">{fmtPhone(row.from_number)}</span>
+                  <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                    <span className="font-mono text-xs sm:text-sm font-semibold nums">{fmtPhone(row.from_number)}</span>
                     <StatusBadge status={row.status} />
                     {row.hot_lead && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-300 border border-red-500/40">
-                        🔥 HOT
+                      <span className="pill pill-danger animate-badge-fade">
+                        <Flame className="w-3 h-3" /> HOT
                       </span>
                     )}
                     {replied && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-500/20 text-green-300 border border-green-500/40">
-                        Replied
-                      </span>
+                      <span className="pill pill-success animate-badge-fade">Replied</span>
                     )}
                   </div>
-                  <p className="text-sm text-foreground/80 truncate">{row.message_body}</p>
+                  <p className="text-sm text-foreground/85 truncate font-mono">{row.message_body}</p>
                 </div>
-                <div className="flex flex-col items-end gap-1 shrink-0">
-                  <span className="text-[10px] text-muted-foreground whitespace-nowrap">{fmtTime(row.received_at)}</span>
-                  <span className={`text-xs transition-transform ${isOpen ? "rotate-180" : ""}`}>▼</span>
+                <div className="flex flex-col items-end gap-1.5 shrink-0">
+                  <span className="text-[10px] font-mono text-muted-foreground whitespace-nowrap nums">
+                    {fmtTime(row.received_at)}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`}
+                  />
                 </div>
               </button>
 
               {isOpen && (
-                <div className="border-t border-border/50 p-4 space-y-4 bg-background/30">
+                <div className="border-t border-hairline p-4 space-y-4 bg-surface-1/40 animate-fade-in">
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-1">
-                      📥 Inbound — {fmtPhone(row.from_number)}
+                    <p className="text-[10px] font-semibold tracking-wider uppercase text-muted-foreground mb-1.5">
+                      Inbound · {fmtPhone(row.from_number)}
                     </p>
-                    <p className="text-sm whitespace-pre-wrap">{row.message_body}</p>
-                    <p className="text-[10px] text-muted-foreground mt-1">
+                    <p className="text-sm font-mono whitespace-pre-wrap text-foreground/90">{row.message_body}</p>
+                    <p className="text-[10px] font-mono text-muted-foreground mt-2 nums">
                       {row.received_at
                         ? new Date(row.received_at).toLocaleString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
+                            month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
                           })
                         : ""}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-1">
-                      🤖 AI Draft — Marshall, Tip Top Capital
+                    <p className="text-[10px] font-semibold tracking-wider uppercase text-council mb-1.5">
+                      AI Draft · Marshall, Tip Top Capital
                     </p>
                     {row.status === "pending" ? (
-                      <p className="text-sm text-yellow-300/80 italic">Generating response…</p>
+                      <p className="text-sm text-warning italic font-mono">Generating response…</p>
                     ) : isEditing ? (
                       <textarea
                         value={editing[row.id]}
                         onChange={(e) => setEditing((p) => ({ ...p, [row.id]: e.target.value }))}
                         disabled={replied}
-                        className="w-full min-h-[100px] rounded-md border border-border/60 bg-background/60 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60"
+                        className="w-full min-h-[100px] rounded-md border border-hairline bg-surface-1 p-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:opacity-60"
                       />
-                    ) : row.status === "error" ? (
-                      <p className="text-sm text-red-300 whitespace-pre-wrap">{row.ai_response}</p>
                     ) : (
-                      <p className="text-sm whitespace-pre-wrap">{row.ai_response}</p>
+                      <p className={`text-sm font-mono whitespace-pre-wrap ${row.status === "error" ? "text-destructive" : "text-foreground/90"}`}>
+                        {row.ai_response}
+                      </p>
                     )}
 
                     <div className="flex flex-wrap gap-2 mt-3">
@@ -243,18 +248,20 @@ export default function SMSTab() {
                         <button
                           onClick={() => flagHotLead(row.id)}
                           disabled={flagging[row.id]}
-                          className="px-3 py-1.5 text-xs rounded-md bg-red-500/15 text-red-300 border border-red-500/40 hover:bg-red-500/25 transition-colors disabled:opacity-50"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md bg-destructive/10 text-destructive border border-destructive/40 hover:bg-destructive/20 transition-colors disabled:opacity-50"
                         >
-                          {flagging[row.id] ? "Flagging..." : "🔥 Hot Lead"}
+                          <Flame className="w-3.5 h-3.5" />
+                          {flagging[row.id] ? "Flagging…" : "Hot Lead"}
                         </button>
                       )}
 
                       {!isEditing && !replied && row.status !== "pending" && (
                         <button
                           onClick={() => setEditing((p) => ({ ...p, [row.id]: row.ai_response ?? "" }))}
-                          className="px-3 py-1.5 text-xs rounded-md bg-primary/15 text-primary border border-primary/40 hover:bg-primary/25 transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md bg-info/10 text-info border border-info/40 hover:bg-info/20 transition-colors"
                         >
-                          ✏️ Edit & Send
+                          <Pencil className="w-3.5 h-3.5" />
+                          Edit & Send
                         </button>
                       )}
 
@@ -262,9 +269,10 @@ export default function SMSTab() {
                         <button
                           onClick={() => sendReply(row)}
                           disabled={sending[row.id]}
-                          className="px-3 py-1.5 text-xs rounded-md bg-green-500/20 text-green-300 border border-green-500/40 hover:bg-green-500/30 transition-colors disabled:opacity-50"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md bg-primary/15 text-primary border border-primary/40 hover:bg-primary/25 transition-colors disabled:opacity-50"
                         >
-                          {sending[row.id] ? "Sending..." : "Send"}
+                          <Send className="w-3.5 h-3.5" />
+                          {sending[row.id] ? "Sending…" : "Send"}
                         </button>
                       )}
                     </div>
@@ -276,10 +284,10 @@ export default function SMSTab() {
         })}
       </div>
 
-      <div className="mt-4 pt-3 border-t border-border/30 flex items-center justify-between text-[10px] text-muted-foreground">
-        <span className="font-mono truncate">Webhook: .../functions/v1/sinch-webhook</span>
-        <span className="flex items-center gap-1">
-          Realtime <span className="text-green-400">●</span>
+      <div className="flex items-center justify-between text-[10px] font-mono text-muted-foreground px-1">
+        <span className="truncate">Webhook: …/functions/v1/sinch-webhook</span>
+        <span className="flex items-center gap-1.5">
+          Realtime <span className="live-dot" />
         </span>
       </div>
     </div>
