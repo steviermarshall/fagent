@@ -1,6 +1,12 @@
 import { Zap, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useCommandBarMetrics } from "@/hooks/useCommandBarMetrics";
+import { MobileNavTrigger } from "./MobileNav";
+
+interface CommandBarProps {
+  active?: string;
+  onNavChange?: (id: string) => void;
+}
 
 function compactCurrency(n: number): string {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
@@ -14,7 +20,7 @@ function compact(n: number): string {
   return n.toLocaleString();
 }
 
-export default function CommandBar() {
+export default function CommandBar({ active, onNavChange }: CommandBarProps = {}) {
   const { theme, toggle } = useTheme();
   const m = useCommandBarMetrics();
 
@@ -35,11 +41,16 @@ export default function CommandBar() {
 
   return (
     <div className="sticky top-0 z-30 bg-surface-1/95 backdrop-blur border-b border-hairline">
-      <div className="h-[52px] flex items-center gap-3 px-3 sm:px-5">
+      <div className="h-[52px] flex items-center gap-2 sm:gap-3 px-3 sm:px-5">
+        {/* Mobile hamburger */}
+        {onNavChange && active && (
+          <MobileNavTrigger active={active} onChange={onNavChange} />
+        )}
+
         {/* Brand */}
         <div className="flex items-center gap-2 shrink-0">
           <Zap className="w-[18px] h-[18px] text-primary" strokeWidth={2.5} />
-          <span className="font-bold text-[13px] sm:text-sm tracking-[0.22em] text-foreground whitespace-nowrap">
+          <span className="font-bold text-[12px] sm:text-sm tracking-[0.22em] text-foreground whitespace-nowrap">
             DOGZ&nbsp;TERMINAL
           </span>
         </div>
@@ -52,11 +63,11 @@ export default function CommandBar() {
         </div>
 
         {/* Right cluster */}
-        <div className="ml-auto flex items-center gap-3 shrink-0">
-          <span className="hidden sm:inline text-[11px] font-mono text-muted-foreground nums">{dateLabel}</span>
+        <div className="ml-auto flex items-center gap-2 sm:gap-3 shrink-0">
+          <span className="hidden md:inline text-[11px] font-mono text-muted-foreground nums">{dateLabel}</span>
           <div className="hidden sm:flex items-center gap-2 pill pill-success">
             <span className="live-dot" />
-            <span>SYSTEMS ACTIVE</span>
+            <span className="hidden md:inline">SYSTEMS ACTIVE</span>
           </div>
           <button
             onClick={toggle}
