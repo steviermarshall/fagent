@@ -62,6 +62,10 @@ const Council = () => {
 
   return (
     <div className="space-y-4">
+      <div>
+        <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Council</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">Agent debates · deal review · stage routing</p>
+      </div>
       {sessions.map((session, i) => {
         const participants = Array.isArray(session.participants) ? session.participants as { emoji: string; name: string; sent: number; limit: number; status: string }[] : [];
         const messages = Array.isArray(session.messages) ? session.messages as { agentEmoji: string; agentName: string; message: string; messageNumber: number }[] : [];
@@ -71,8 +75,8 @@ const Council = () => {
             key={session.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="glass-card overflow-hidden"
+            transition={{ delay: i * 0.06 }}
+            className="glass-card-hover accent-l-council overflow-hidden"
           >
             <button
               onClick={() => setExpanded(expanded === session.id ? null : session.id)}
