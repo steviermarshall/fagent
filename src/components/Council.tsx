@@ -3,42 +3,6 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, Check, Loader2, Clock } from "lucide-react";
 import { useCouncilSessions } from "@/hooks/useSupabaseData";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-
-const STAGE_OPTIONS = [
-  { value: "lead", label: "lead" },
-  { value: "contacted", label: "contacted" },
-  { value: "vc&id", label: "🆔 vc&id" },
-  { value: "documents", label: "📝 documents" },
-  { value: "signed", label: "✍️ signed" },
-  { value: "funded", label: "💰 funded" },
-  { value: "dead", label: "💀 dead" },
-];
-
-function extractBusinessName(question: string): string | null {
-  // Format: "Deal review: <business_name> — $..."
-  const match = question.match(/Deal review:\s*(.+?)\s*—/);
-  return match ? match[1].trim() : null;
-}
-
-async function updateDealStage(question: string, stage: string) {
-  const businessName = extractBusinessName(question);
-  if (!businessName) {
-    toast.error("Could not identify deal from session");
-    return;
-  }
-  const { error } = await supabase
-    .from("deals")
-    .update({ pending_stage: stage, pending_stage_at: new Date().toISOString() })
-    .eq("business_name", businessName);
-  if (error) {
-    console.error(error);
-    toast.error("Failed to update stage");
-    return;
-  }
-  toast.success("Stage updated — syncing to sheet...");
-}
 
 const statusIcons: Record<string, React.ReactNode> = {
   done: <Check className="w-3 h-3 text-primary" />,
@@ -62,10 +26,6 @@ const Council = () => {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Council</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">Agent debates · deal review · stage routing</p>
-      </div>
       {sessions.map((session, i) => {
         const participants = Array.isArray(session.participants) ? session.participants as { emoji: string; name: string; sent: number; limit: number; status: string }[] : [];
         const messages = Array.isArray(session.messages) ? session.messages as { agentEmoji: string; agentName: string; message: string; messageNumber: number }[] : [];
@@ -75,8 +35,8 @@ const Council = () => {
             key={session.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06 }}
-            className="glass-card-hover accent-l-council overflow-hidden"
+            transition={{ delay: i * 0.1 }}
+            className="glass-card overflow-hidden"
           >
             <button
               onClick={() => setExpanded(expanded === session.id ? null : session.id)}
@@ -87,17 +47,6 @@ const Council = () => {
                   <Badge variant="outline" className={`text-xs border ${sessionStatusColors[session.status] || sessionStatusColors.open}`}>
                     {session.status || "open"}
                   </Badge>
-                  <select
-                    onClick={(e) => e.stopPropagation()}
-                    onChange={(e) => updateDealStage(session.question, e.target.value)}
-                    defaultValue=""
-                    className="text-xs bg-secondary/40 border border-border rounded px-2 py-1 text-foreground hover:bg-secondary/60 cursor-pointer"
-                  >
-                    <option value="" disabled>Set stage...</option>
-                    {STAGE_OPTIONS.map((s) => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
-                    ))}
-                  </select>
                 </div>
                 <h3 className="text-sm font-semibold text-foreground mb-3">{session.question}</h3>
                 {participants.length > 0 && (
