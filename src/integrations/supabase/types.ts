@@ -248,6 +248,8 @@ export type Database = {
           id: string
           merchant_id: string | null
           notes: string | null
+          pending_stage: string | null
+          pending_stage_at: string | null
           stage: string | null
           submitted_at: string | null
           updated_at: string | null
@@ -263,6 +265,8 @@ export type Database = {
           id?: string
           merchant_id?: string | null
           notes?: string | null
+          pending_stage?: string | null
+          pending_stage_at?: string | null
           stage?: string | null
           submitted_at?: string | null
           updated_at?: string | null
@@ -278,6 +282,8 @@ export type Database = {
           id?: string
           merchant_id?: string | null
           notes?: string | null
+          pending_stage?: string | null
+          pending_stage_at?: string | null
           stage?: string | null
           submitted_at?: string | null
           updated_at?: string | null
@@ -843,9 +849,13 @@ export type Database = {
           conversation_id: string | null
           created_at: string | null
           from_number: string | null
+          hot_lead: boolean | null
           id: string
           message_body: string | null
           received_at: string | null
+          reply_sent: boolean | null
+          reply_sent_at: string | null
+          reply_text: string | null
           sinch_payload: Json | null
           status: string | null
         }
@@ -854,9 +864,13 @@ export type Database = {
           conversation_id?: string | null
           created_at?: string | null
           from_number?: string | null
+          hot_lead?: boolean | null
           id?: string
           message_body?: string | null
           received_at?: string | null
+          reply_sent?: boolean | null
+          reply_sent_at?: string | null
+          reply_text?: string | null
           sinch_payload?: Json | null
           status?: string | null
         }
@@ -865,9 +879,13 @@ export type Database = {
           conversation_id?: string | null
           created_at?: string | null
           from_number?: string | null
+          hot_lead?: boolean | null
           id?: string
           message_body?: string | null
           received_at?: string | null
+          reply_sent?: boolean | null
+          reply_sent_at?: string | null
+          reply_text?: string | null
           sinch_payload?: Json | null
           status?: string | null
         }
