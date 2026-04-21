@@ -9,7 +9,13 @@ interface SmsRow {
   ai_response: string | null;
   status: "pending" | "responded" | "error";
   conversation_id: string | null;
+  hot_lead?: boolean | null;
+  reply_sent?: boolean | null;
+  reply_text?: string | null;
 }
+
+const FN_BASE = "https://gdbprswowbqndmcunbyj.supabase.co/functions/v1";
+const FN_KEY = "sb_publishable_ojDXPF3aH162F74FjaPJDA_Cf0dT_zf";
 
 function StatusBadge({ status }: { status: SmsRow["status"] }) {
   const map = {
