@@ -3,6 +3,23 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, Check, Loader2, Clock } from "lucide-react";
 import { useCouncilSessions } from "@/hooks/useSupabaseData";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+const STAGE_OPTIONS = [
+  { value: "lead", label: "lead" },
+  { value: "contacted", label: "contacted" },
+  { value: "vc_id", label: "🆔 vc&id" },
+  { value: "documents", label: "📝 documents" },
+  { value: "signed", label: "✍️ signed" },
+  { value: "funded", label: "📝 funded" },
+  { value: "dead", label: "📝 dead" },
+];
+
+function parseBusinessName(question: string): string | null {
+  const m = question.match(/^Deal review:\s*(.+?)\s*—/);
+  return m ? m[1].trim() : null;
+}
 
 const statusIcons: Record<string, React.ReactNode> = {
   done: <Check className="w-3 h-3 text-primary" />,
@@ -19,7 +36,27 @@ const sessionStatusColors: Record<string, string> = {
 
 const Council = () => {
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [updating, setUpdating] = useState<Record<string, boolean>>({});
   const { sessions, loading } = useCouncilSessions();
+
+  async function updateStage(sessionId: string, question: string, stage: string) {
+    const businessName = parseBusinessName(question);
+    if (!businessName) {
+      toast.error("Could not identify deal from session");
+      return;
+    }
+    setUpdating((p) => ({ ...p, [sessionId]: true }));
+    const { error } = await supabase
+      .from("deals")
+      .update({ pending_stage: stage, pending_stage_at: new Date().toISOString() })
+      .eq("business_name", businessName);
+    setUpdating((p) => ({ ...p, [sessionId]: false }));
+    if (error) {
+      toast.error(`Update failed: ${error.message}`);
+      return;
+    }
+    toast.success("Stage updated — syncing to sheet...");
+  }
 
   if (loading) return <p className="text-sm text-muted-foreground">Loading council sessions...</p>;
   if (sessions.length === 0) return <p className="text-sm text-muted-foreground">No council sessions found.</p>;
