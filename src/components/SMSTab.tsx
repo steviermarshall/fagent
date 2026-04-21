@@ -115,63 +115,15 @@ export default function SMSTab() {
             <p className="text-xs text-muted-foreground/70 mt-1">Waiting for Sinch webhooks...</p>
           </div>
         )}
-        {rows.map((row) => {
-          const isOpen = expanded === row.id;
-          return (
-            <div key={row.id} className="rounded-lg border border-border/50 bg-card/40 overflow-hidden">
-              <button
-                className="w-full p-3 flex items-start gap-3 hover:bg-accent/30 transition-colors text-left"
-                onClick={() => setExpanded(isOpen ? null : row.id)}
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="font-mono text-xs sm:text-sm font-medium">{fmtPhone(row.from_number)}</span>
-                    <StatusBadge status={row.status} />
-                  </div>
-                  <p className="text-sm text-foreground/80 truncate">{row.message_body}</p>
-                </div>
-                <div className="flex flex-col items-end gap-1 shrink-0">
-                  <span className="text-[10px] text-muted-foreground whitespace-nowrap">{fmtTime(row.received_at)}</span>
-                  <span className={`text-xs transition-transform ${isOpen ? "rotate-180" : ""}`}>▼</span>
-                </div>
-              </button>
-
-              {isOpen && (
-                <div className="border-t border-border/50 p-4 space-y-4 bg-background/30">
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-1">
-                      📥 Inbound — {fmtPhone(row.from_number)}
-                    </p>
-                    <p className="text-sm whitespace-pre-wrap">{row.message_body}</p>
-                    <p className="text-[10px] text-muted-foreground mt-1">
-                      {row.received_at
-                        ? new Date(row.received_at).toLocaleString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
-                          })
-                        : ""}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-1">
-                      🤖 AI Draft — Marshall, Tip Top Capital
-                    </p>
-                    {row.status === "pending" ? (
-                      <p className="text-sm text-yellow-300/80 italic">Generating response…</p>
-                    ) : row.status === "error" ? (
-                      <p className="text-sm text-red-300 whitespace-pre-wrap">{row.ai_response}</p>
-                    ) : (
-                      <p className="text-sm whitespace-pre-wrap">{row.ai_response}</p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+        {rows.map((row) => (
+          <SmsRowItem
+            key={row.id}
+            row={row}
+            isOpen={expanded === row.id}
+            onToggle={() => setExpanded(expanded === row.id ? null : row.id)}
+            onPatch={(patch) => setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, ...patch } : r)))}
+          />
+        ))}
       </div>
 
       <div className="mt-4 pt-3 border-t border-border/30 flex items-center justify-between text-[10px] text-muted-foreground">
