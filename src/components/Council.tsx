@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
-import { Check, Loader2, Clock, Copy, ChevronDown, Search } from "lucide-react";
+import { Check, Loader2, Clock, Copy, ChevronDown, Search, ArrowLeft } from "lucide-react";
 import { useCouncilSessions } from "@/hooks/useSupabaseData";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
