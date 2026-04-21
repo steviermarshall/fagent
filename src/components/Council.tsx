@@ -84,6 +84,22 @@ const Council = () => {
                   <Badge variant="outline" className={`text-xs border ${sessionStatusColors[session.status] || sessionStatusColors.open}`}>
                     {session.status || "open"}
                   </Badge>
+                  <select
+                    value=""
+                    disabled={updating[session.id]}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v) updateStage(session.id, session.question, v);
+                      e.target.value = "";
+                    }}
+                    className="text-xs bg-background/60 border border-border/60 rounded px-2 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+                  >
+                    <option value="">{updating[session.id] ? "Updating…" : "Set stage…"}</option>
+                    {STAGE_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
+                    ))}
+                  </select>
                 </div>
                 <h3 className="text-sm font-semibold text-foreground mb-3">{session.question}</h3>
                 {participants.length > 0 && (
