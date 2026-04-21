@@ -575,10 +575,10 @@ const Council = () => {
   );
 
   return (
-    <div className="flex gap-4 items-start">
+    <div className="flex flex-col lg:flex-row gap-4 items-start">
 
-      {/* ── Sidebar ── */}
-      <div className="w-60 shrink-0 flex flex-col gap-3 sticky top-24">
+      {/* ── Sidebar ── (hidden on mobile when a deal is selected) */}
+      <div className={`w-full lg:w-60 lg:shrink-0 flex flex-col gap-3 lg:sticky lg:top-24 ${selected ? "hidden lg:flex" : "flex"}`}>
 
         {/* Classification filter chips */}
         <div className="grid grid-cols-4 gap-1">
@@ -605,7 +605,7 @@ const Council = () => {
         </div>
 
         {/* Deal list */}
-        <div className="flex flex-col gap-1.5 max-h-[65vh] overflow-y-auto pr-0.5">
+        <div className="flex flex-col gap-1.5 max-h-[70vh] lg:max-h-[65vh] overflow-y-auto pr-0.5">
           {filtered.length === 0
             ? <p className="text-sm text-muted-foreground text-center py-8">No deals found</p>
             : filtered.map((s: any) => (
@@ -615,10 +615,18 @@ const Council = () => {
         </div>
       </div>
 
-      {/* ── Main Panel ── */}
-      <div className="flex-1 min-w-0 flex flex-col gap-4">
+      {/* ── Main Panel ── (hidden on mobile when no deal selected) */}
+      <div className={`flex-1 min-w-0 w-full flex-col gap-4 ${selected ? "flex" : "hidden lg:flex"}`}>
         {selected ? (
           <>
+            {/* Mobile back button */}
+            <button
+              onClick={() => setSelected(null)}
+              className="lg:hidden flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground px-2 py-1.5 rounded hover:bg-secondary transition-colors self-start"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Back to deals
+            </button>
+
             <DealHeader session={selected} onStageChange={handleStageChange} updating={updating} onClose={() => setSelected(null)} />
 
             {(() => {
