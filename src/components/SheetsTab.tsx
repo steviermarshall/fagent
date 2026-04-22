@@ -29,6 +29,8 @@ const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
   done:   { label: "Done",   cls: "bg-blue-500/20 text-blue-300 border border-blue-500/40"    },
 };
 
+const STATUS_ORDER: Record<string, number> = { active: 0, idle: 1, done: 2 };
+
 function fmtTime(iso: string | null) {
   if (!iso) return "Never";
   const d = new Date(iso);
@@ -53,12 +55,31 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
   );
 }
 
+function SeqList({ sequences }: { sequences: Record<string, unknown> }) {
+  const entries = Object.entries(sequences).filter(([k]) => k !== "mobile_tab" && k !== "mobile_rows");
+  if (entries.length === 0) return <span className="opacity-60">Awaiting first run</span>;
+  return (
+    <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+      {entries.map(([seq, data]) => {
+        const d = (data ?? {}) as { sent?: number; last_date?: string };
+        return (
+          <span key={seq} className="whitespace-nowrap">
+            <span className="text-foreground/60">{seq}:</span>{" "}
+            <span className="tabular-nums text-foreground/90">{(d.sent || 0).toLocaleString()}</span>
+            {d.last_date && <span className="opacity-50"> {d.last_date}</span>}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function SheetsTab() {
   const [rows, setRows] = useState<SheetRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.from("sheet_status").select("*").order("type")
+    supabase.from("sheet_status").select("*")
       .then(({ data }) => {
         setRows((data as unknown as SheetRow[]) ?? []);
         setLoading(false);
@@ -73,6 +94,8 @@ export default function SheetsTab() {
     return () => { supabase.removeChannel(ch); };
   }, []);
 
+  const sorted = [...rows].sort((a, b) => (STATUS_ORDER[a.status] ?? 1) - (STATUS_ORDER[b.status] ?? 1));
+
   return (
     <div className="glass-card p-4 sm:p-6">
       <div className="flex items-center justify-between mb-4">
@@ -83,94 +106,104 @@ export default function SheetsTab() {
         <span className="text-xs text-muted-foreground">{rows.length} sheets tracked</span>
       </div>
 
-      {/* Column headers — hidden on mobile */}
-      <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_2fr_1fr_1.5fr] gap-3 px-3 py-2 text-[10px] uppercase tracking-wider text-muted-foreground border-b border-white/5">
-        <div>Sheet</div>
-        <div>Type</div>
-        <div>Status</div>
-        <div>Progress</div>
-        <div>Last Run</div>
-        <div>Sent / Failed</div>
-      </div>
+      {loading && <p className="text-sm text-muted-foreground p-4">Loading...</p>}
+      {!loading && rows.length === 0 && <p className="text-sm text-muted-foreground p-4">No sheets tracked yet.</p>}
 
-      <div className="divide-y divide-white/5">
-        {loading && <p className="text-sm text-muted-foreground p-4">Loading...</p>}
-        {!loading && rows.length === 0 && (
-          <p className="text-sm text-muted-foreground p-4">No sheets tracked yet.</p>
-        )}
-        {rows.map((row) => {
+      {/* ── Mobile: card stack ── */}
+      <div className="flex flex-col gap-3 md:hidden">
+        {sorted.map((row) => {
           const tc = TYPE_CONFIG[row.type] ?? TYPE_CONFIG.crm;
           const sc = STATUS_CONFIG[row.status] ?? STATUS_CONFIG.idle;
           return (
-            <div
-              key={row.id}
-              className="grid grid-cols-2 md:grid-cols-[2fr_1fr_1fr_2fr_1fr_1.5fr] gap-3 px-3 py-3 text-sm hover:bg-white/5 transition-colors"
-            >
-              {/* Sheet name */}
-              <div className="col-span-2 md:col-span-1">
-                <div className="font-medium text-foreground truncate">{row.sheet_name}</div>
-                {row.total_rows > 0 && (
-                  <div className="text-[11px] text-muted-foreground tabular-nums">
+            <div key={row.id} className="rounded-lg border border-white/8 bg-white/[0.03] p-3 flex flex-col gap-2.5">
+              {/* Name + status */}
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-foreground text-sm truncate">{row.sheet_name}</div>
+                  <div className={`text-xs ${tc.color} flex items-center gap-1 mt-0.5`}>
+                    <span>{tc.icon}</span>
+                    <span>{tc.label}</span>
+                  </div>
+                </div>
+                <span className={`shrink-0 inline-block px-2 py-0.5 rounded text-[10px] font-medium ${sc.cls}`}>{sc.label}</span>
+              </div>
+
+              {/* Progress */}
+              {row.total_rows > 0 && (
+                <div>
+                  <div className="text-[10px] text-muted-foreground">
                     Row {(row.current_row || 0).toLocaleString()} of {row.total_rows.toLocaleString()}
                   </div>
-                )}
-                {row.total_rows > 0 && <ProgressBar current={row.current_row || 0} total={row.total_rows} />}
-              </div>
+                  <ProgressBar current={row.current_row || 0} total={row.total_rows} />
+                </div>
+              )}
 
-              {/* Type */}
-              <div className={`text-xs ${tc.color} flex items-center gap-1`}>
-                <span>{tc.icon}</span>
-                <span className="hidden sm:inline">{tc.label}</span>
-              </div>
+              {/* Sequences */}
+              {row.sequences && Object.keys(row.sequences).length > 0 && (
+                <div className="text-[11px] text-muted-foreground">
+                  <SeqList sequences={row.sequences} />
+                </div>
+              )}
 
-              {/* Status */}
-              <div>
-                <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-medium ${sc.cls}`}>
-                  {sc.label}
-                </span>
-              </div>
-
-              {/* Progress / sequences */}
-              <div className="col-span-2 md:col-span-1 text-[11px] text-muted-foreground">
-                {row.sequences && Object.keys(row.sequences).length > 0 ? (
-                  <div className="flex flex-wrap gap-x-2 gap-y-0.5">
-                    {Object.entries(row.sequences)
-                      .filter(([k]) => k !== "mobile_tab" && k !== "mobile_rows")
-                      .map(([seq, data]) => {
-                        const d = (data ?? {}) as { sent?: number; last_date?: string };
-                        return (
-                          <span key={seq} className="whitespace-nowrap">
-                            <span className="text-foreground/70">{seq}:</span>{" "}
-                            <span className="tabular-nums">{(d.sent || 0).toLocaleString()}</span>
-                            {d.last_date && <span className="opacity-60"> ({d.last_date})</span>}
-                          </span>
-                        );
-                      })}
-                  </div>
-                ) : (
-                  <span className="opacity-60">Awaiting first run</span>
-                )}
-              </div>
-
-              {/* Last run */}
-              <div className="text-[11px] text-muted-foreground">{fmtTime(row.last_run_at)}</div>
-
-              {/* Sent / Failed */}
-              <div className="text-[11px]">
-                {row.last_run_sent > 0 || row.last_run_failed > 0 ? (
-                  <span className="tabular-nums">
+              {/* Last run + sent/failed */}
+              <div className="flex items-center justify-between text-[11px] pt-0.5 border-t border-white/5">
+                <span className="text-muted-foreground">{fmtTime(row.last_run_at)}</span>
+                {(row.last_run_sent > 0 || row.last_run_failed > 0) ? (
+                  <span>
                     <span className="text-green-400">{row.last_run_sent.toLocaleString()} sent</span>
-                    {row.last_run_failed > 0 && (
-                      <span className="text-red-400"> · {row.last_run_failed} failed</span>
-                    )}
+                    {row.last_run_failed > 0 && <span className="text-red-400"> · {row.last_run_failed} failed</span>}
                   </span>
-                ) : (
-                  <span className="text-muted-foreground opacity-60">No runs yet</span>
-                )}
+                ) : <span className="text-muted-foreground opacity-50">No runs yet</span>}
               </div>
             </div>
           );
         })}
+      </div>
+
+      {/* ── Desktop: table ── */}
+      <div className="hidden md:block">
+        <div className="grid grid-cols-[2fr_1fr_1fr_2fr_1fr_1.5fr] gap-3 px-3 py-2 text-[10px] uppercase tracking-wider text-muted-foreground border-b border-white/5">
+          <div>Sheet</div><div>Type</div><div>Status</div><div>Sequences</div><div>Last Run</div><div>Sent / Failed</div>
+        </div>
+        <div className="divide-y divide-white/5">
+          {sorted.map((row) => {
+            const tc = TYPE_CONFIG[row.type] ?? TYPE_CONFIG.crm;
+            const sc = STATUS_CONFIG[row.status] ?? STATUS_CONFIG.idle;
+            return (
+              <div key={row.id} className="grid grid-cols-[2fr_1fr_1fr_2fr_1fr_1.5fr] gap-3 px-3 py-3 text-sm hover:bg-white/5 transition-colors">
+                <div>
+                  <div className="font-medium text-foreground truncate">{row.sheet_name}</div>
+                  {row.total_rows > 0 && (
+                    <div className="text-[11px] text-muted-foreground tabular-nums">
+                      Row {(row.current_row || 0).toLocaleString()} of {row.total_rows.toLocaleString()}
+                    </div>
+                  )}
+                  {row.total_rows > 0 && <ProgressBar current={row.current_row || 0} total={row.total_rows} />}
+                </div>
+                <div className={`text-xs ${tc.color} flex items-center gap-1`}>
+                  <span>{tc.icon}</span><span>{tc.label}</span>
+                </div>
+                <div>
+                  <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-medium ${sc.cls}`}>{sc.label}</span>
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  {row.sequences && Object.keys(row.sequences).length > 0
+                    ? <SeqList sequences={row.sequences} />
+                    : <span className="opacity-60">Awaiting first run</span>}
+                </div>
+                <div className="text-[11px] text-muted-foreground">{fmtTime(row.last_run_at)}</div>
+                <div className="text-[11px]">
+                  {row.last_run_sent > 0 || row.last_run_failed > 0 ? (
+                    <span>
+                      <span className="text-green-400">{row.last_run_sent.toLocaleString()} sent</span>
+                      {row.last_run_failed > 0 && <span className="text-red-400"> · {row.last_run_failed} failed</span>}
+                    </span>
+                  ) : <span className="text-muted-foreground opacity-60">No runs yet</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5 text-[10px] text-muted-foreground">
