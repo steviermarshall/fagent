@@ -62,6 +62,13 @@ function timeAgo(d: string) {
   return `${Math.floor(h / 24)}d ago`;
 }
 
+function isDead(s: any) {
+  const { stage } = parseDeal(s.question);
+  const kaiMsg = getAgent(Array.isArray(s.messages) ? s.messages : [], "Kai");
+  const cls: string = (kaiMsg?.perspective as any)?.classification ?? "";
+  return cls === "TRASH" || stage.toLowerCase().includes("dead");
+}
+
 // ─── Micro components ─────────────────────────────────────────
 
 function ScoreMeter({ value, barClass }: { value: number; barClass: string }) {
@@ -518,6 +525,7 @@ const Council = () => {
   const [updating, setUpdating]   = useState(false);
   const [search,   setSearch]     = useState("");
   const [filter,   setFilter]     = useState("ALL");
+  const [showDead, setShowDead]   = useState(false);
 
   // Keep selected fresh when sessions update (realtime)
   const selectedId = selected?.id;
@@ -550,13 +558,31 @@ const Council = () => {
     counts[cls] = (counts[cls] ?? 0) + 1;
   }
 
-  const filtered = sessions.filter((s: any) => {
+  const deadCount = sessions.filter(isDead).length;
+
+  // Active first (sorted by confidence desc), dead pushed to bottom
+  const sorted = [...sessions].sort((a, b) => {
+    const aD = isDead(a), bD = isDead(b);
+    if (aD && !bD) return 1;
+    if (!aD && bD) return -1;
+    const aK = getAgent(Array.isArray(a.messages) ? a.messages : [], "Kai");
+    const bK = getAgent(Array.isArray(b.messages) ? b.messages : [], "Kai");
+    return ((bK?.perspective as any)?.confidence ?? 0) - ((aK?.perspective as any)?.confidence ?? 0);
+  });
+
+  const filtered = sorted.filter((s: any) => {
     const { business } = parseDeal(s.question);
     const matchSearch = business.toLowerCase().includes(search.toLowerCase());
-    if (filter === "ALL") return matchSearch;
-    const kaiMsg = getAgent(Array.isArray(s.messages) ? s.messages : [], "Kai");
-    const cls: string = (kaiMsg?.perspective as any)?.classification ?? "";
-    return matchSearch && cls === filter;
+    const dead = isDead(s);
+    if (filter === "TRASH") return matchSearch && dead;
+    if (filter !== "ALL") {
+      const kaiMsg = getAgent(Array.isArray(s.messages) ? s.messages : [], "Kai");
+      const cls: string = (kaiMsg?.perspective as any)?.classification ?? "";
+      return matchSearch && cls === filter && !dead;
+    }
+    // ALL: hide dead unless user explicitly reveals them
+    if (!showDead && dead) return false;
+    return matchSearch;
   });
 
   if (loading) return (
@@ -612,6 +638,14 @@ const Council = () => {
                 <SessionRow key={s.id} session={s} active={selected?.id === s.id} onClick={() => setSelected(s)} />
               ))
           }
+          {filter === "ALL" && deadCount > 0 && (
+            <button
+              onClick={() => setShowDead(d => !d)}
+              className="w-full text-center text-xs text-muted-foreground hover:text-foreground py-2 border-t border-border/30 mt-1 transition-colors"
+            >
+              {showDead ? "Hide dead deals" : `+ ${deadCount} dead deal${deadCount !== 1 ? "s" : ""}`}
+            </button>
+          )}
         </div>
       </div>
 
@@ -675,3 +709,4 @@ const Council = () => {
 };
 
 export default Council;
+
