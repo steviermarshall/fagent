@@ -113,8 +113,8 @@ function SheetCard({ row }: { row: SheetRow }) {
 
   return (
     <div className={`rounded-xl border bg-white/[0.02] overflow-hidden transition-all hover:bg-white/[0.04] ${isActive ? "border-green-500/30 shadow-[0_0_20px_rgba(34,197,94,0.08)]" : "border-white/8"}`}>
-      <div className="px-5 pt-4 pb-3 flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+      <div className="px-4 sm:px-5 pt-4 pb-3 flex flex-col sm:flex-row items-start justify-between gap-3">
+        <div className="flex items-center flex-wrap gap-2.5 min-w-0 flex-1">
           <TypeBadge type={row.type} />
           <StatusPill status={row.status} />
           <h3 className="text-sm font-semibold text-foreground truncate flex items-center gap-1.5">
@@ -130,7 +130,7 @@ function SheetCard({ row }: { row: SheetRow }) {
         )}
       </div>
 
-      <div className="px-5 pb-3 space-y-2">
+      <div className="px-4 sm:px-5 pb-3 space-y-2">
         <div className="flex items-baseline justify-between text-xs">
           <div className="text-muted-foreground">
             <span className="font-semibold text-foreground tabular-nums">{fmtNum(row.current_row)}</span>
@@ -142,7 +142,7 @@ function SheetCard({ row }: { row: SheetRow }) {
       </div>
 
       {seqEntries.length > 0 && (
-        <div className="px-5 pb-3">
+        <div className="px-4 sm:px-5 pb-3">
           <div className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1.5">Sequences</div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5">
             {seqEntries.map(([seq, data]) => {
@@ -153,7 +153,7 @@ function SheetCard({ row }: { row: SheetRow }) {
         </div>
       )}
 
-      <div className="px-5 py-2.5 border-t border-white/5 flex items-center justify-between text-[11px] bg-white/[0.01]">
+      <div className="px-4 sm:px-5 py-2.5 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] bg-white/[0.01]">
         <span className="text-muted-foreground">Last run: <span className="text-foreground/70">{fmtTime(row.last_run_at)}</span></span>
         <div className="flex items-center gap-2.5">
           {(row.last_run_sent ?? 0) > 0 && <span className="text-green-400 tabular-nums">✓ {fmtNum(row.last_run_sent)} sent</span>}
@@ -165,7 +165,7 @@ function SheetCard({ row }: { row: SheetRow }) {
       {row.last_subject && (
         <button
           onClick={() => setOpen(!open)}
-          className="w-full flex items-center justify-between px-5 py-2 border-t border-white/5 text-[11px] text-muted-foreground hover:text-foreground/70 transition-colors bg-white/[0.02] hover:bg-white/5"
+          className="w-full flex items-center justify-between px-4 sm:px-5 py-2 border-t border-white/5 text-[11px] text-muted-foreground hover:text-foreground/70 transition-colors bg-white/[0.02] hover:bg-white/5"
         >
           <span className={`text-left ${open ? "" : "truncate"} flex-1 mr-2`}>
             {open ? row.last_subject : `Subject: ${row.last_subject}`}
@@ -273,7 +273,7 @@ export default function SheetsTab() {
         {filtered.map(row => <SheetCard key={row.id} row={row} />)}
       </div>
 
-      <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5 text-[10px] text-muted-foreground">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mt-4 pt-3 border-t border-white/5 text-[10px] text-muted-foreground">
         <span>Updates after each email/SMS run</span>
         <span className="tabular-nums">{rows.length} sheets · {totalContacts.toLocaleString()} total contacts</span>
       </div>
