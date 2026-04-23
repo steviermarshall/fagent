@@ -113,7 +113,7 @@ function SheetCard({ row }: { row: SheetRow }) {
 
   return (
     <div className={`rounded-xl border bg-white/[0.02] overflow-hidden transition-all hover:bg-white/[0.04] ${isActive ? "border-green-500/30 shadow-[0_0_20px_rgba(34,197,94,0.08)]" : "border-white/8"}`}>
-      <div className="px-5 pt-4 pb-3 flex items-start justify-between gap-3">
+      <div className="px-4 sm:px-5 pt-4 pb-3 flex flex-col sm:flex-row items-start justify-between gap-3">
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
           <TypeBadge type={row.type} />
           <StatusPill status={row.status} />
