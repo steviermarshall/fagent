@@ -209,13 +209,14 @@ export default function SheetsTab() {
   const totalSent     = rows.reduce((s, r) => s + (r.last_run_sent ?? 0), 0);
   const activeCount   = rows.filter(r => r.status === "active").length;
 
-  const filterTabs: { key: FilterType; label: string; count: number }[] = [
+  const allTabs: { key: FilterType; label: string; count: number }[] = [
     { key: "all",      label: "All",      count: rows.length },
     { key: "email",    label: "Email",    count: rows.filter(r => r.type === "email").length },
     { key: "sms",      label: "SMS",      count: rows.filter(r => r.type === "sms").length },
     { key: "crm",      label: "CRM",      count: rows.filter(r => r.type === "crm").length },
     { key: "pipeline", label: "Pipeline", count: rows.filter(r => r.type === "pipeline").length },
-  ].filter(t => t.key === "all" || t.count > 0);
+  ];
+  const filterTabs = allTabs.filter(t => t.key === "all" || t.count > 0);
 
   return (
     <div className="glass-card p-4 sm:p-6">
