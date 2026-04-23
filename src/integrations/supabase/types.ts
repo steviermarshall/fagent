@@ -783,7 +783,7 @@ export type Database = {
         }
         Insert: {
           current_row?: number | null
-          id: string
+          id?: string
           last_run_at?: string | null
           last_run_failed?: number | null
           last_run_sent?: number | null
